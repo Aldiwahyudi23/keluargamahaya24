@@ -154,7 +154,7 @@ $umur = $today->diff($lahir);
                                     }
                                 }
                                 ?>
-                                @if($data_warga->status_pernikahan == "Menikah" | $data_warga->status_pernikahan == "Cerai Mati" | $data_warga->status_pernikahan == "Cerai Hidup")
+                                @if($data_warga->status_pernikahan == "Menikah")
                                 @if ($cek_data_hubungan == 1)
                                 <div class="form-group">
                                     <label for="warga_id_1">Untuk Pemilihan Hubungan Anak apakah benar Salah satu orang tua nya yang bernama {{$data_hubungan->nama}} ?</label>
@@ -240,6 +240,7 @@ $umur = $today->diff($lahir);
             </div>
         </div>
     </div>
+    @if ($data_akun == true)
     <div class="col-12 col-sm-12">
         <div class="card card-dark">
             <div class="card-header">
@@ -274,5 +275,6 @@ $umur = $today->diff($lahir);
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection

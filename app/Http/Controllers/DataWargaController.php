@@ -140,9 +140,15 @@ class DataWargaController extends Controller
         $id = Crypt::decrypt($id);
         $data_warga = DataWarga::find($id);
         $data_warga_all = DataWarga::all();
+
         $data_akun = User::where('data_warga_id', $id)->first();
+        $cek_akun = User::where('data_warga_id', $id)->count();
+        if ($cek_akun == true) {
+            $kerja = UpdateKerja::orderByRaw('created_at DESC')->where('user_id', $data_akun->id)->get();
+        } else {
+            $kerja = UpdateKerja::all();
+        }
         $foto = FotoUser::where('data_warga_id', $id)->where('is_active', 1)->first();
-        $kerja = UpdateKerja::orderByRaw('created_at DESC')->where('user_id', $data_akun->id)->get();
 
         $cek_data_hubungan = HubunganWarga::where('warga_id', $id)->get();
 

@@ -115,7 +115,8 @@ class PemasukanController extends Controller
         $token = "@Mx6RkRVz60S#j8YGi6T";
         $target = "$ketua->data_warga->no_hp, $DataWarga->no_hp";
         $nominal = number_format($request->jumlah, 2, ',', '.');
-        $pengurus = User::Find($data_pemasukan->pengurus_id);
+        $pengurus = User::Find(auth::user()->id);
+        $pengurus_acc = $pengurus->data_warga->nama;
 
         $curl = curl_init();
 
@@ -135,7 +136,7 @@ class PemasukanController extends Controller
                         Pesan Otomatis   
 
 Info ti pusattt
-Pengajuan atos di setujui atos di konfirmasi ku $pengurus->name dengan data sesuai di Handap
+Pengajuan atos di setujui atos di konfirmasi ku $pengurus_acc dengan data sesuai di Handap
 
 ID : $data_pemasukan->kode
 Tanggal : $request->tanggal
