@@ -77,7 +77,7 @@ class BayarPinjamanController extends Controller
         $data_pemasukan->keterangan = $request->keterangan;
         $data_pemasukan->tanggal = $request->tanggal;
         $data_pemasukan->kode = $request->kode;
-        $data_pemasukan->pengurus_id = Auth::user()->id;
+        $data_pemasukan->pengurus_id = Auth::user()->data_warga_id;
 
         if ($request->foto) {
             $data_pemasukan->foto          = "/img/bukti/$nama";

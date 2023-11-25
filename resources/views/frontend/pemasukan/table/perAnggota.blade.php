@@ -47,7 +47,7 @@
             $program = Program::find(1); //find id 1 adalah mengambil id dari data program dengan id 1 ya itu kas keluarga
 
             // mengambil data selisih yang tidak bekerja 
-            $update_kerja = UpdateKerja::where('user_id', Auth::user()->id)->sum('tenor');
+            $update_kerja = UpdateKerja::where('user_id', $anggota->id)->sum('tenor');
             // untuk menghitung sesilih bulan dari awal sampai sekarang khusu program kas
             $date = date("Y-m-d");
             $timeStart = strtotime("$program->tanggal");
@@ -73,8 +73,14 @@
 
          @if ( $data_program_kas == 1)
          <td> <a href="{{route('detail.anggota.kas',Crypt::encrypt($anggota->id))}}"> {{ "Rp " . number_format( $jumlah,2,',','.') }} </a> <br>
-             @if($sisa_kas <= 0) luarrr biasa TUNTAS <br>
-                 @else Sisa <b>{{ "Rp " . number_format($sisa_kas,2,',','.') }}</b> atawa <b>{{$sisa_bulan}}</b> Bulanan
+
+             @if( $sisa_kas <= 0) <!-- Jika sisa kas yang harus di bayar kas kosong -->
+                 TUNTAS sadayana atos bayar ti awal sampe ayeuna bulan {{date("M-Y",$timeEnd)}} kapotong Tidak Bekerja selami <b>{{$update_kerja}}</b> bulan,jalan bulan ka {{$numBulan}} <br>
+
+                 <!-- dab jika tida -->
+                 @else
+                 <b>{{ "Rp " . number_format($sisa_kas,2,',','.') }}</b> atawa <b>{{$sisa_bulan}}</b> Bulanan nu teu acan di bayar kapotong Tidak Bekerja selami <b>{{$update_kerja}}</b> bulan , Mangga cek wae dina story pembayaran<br> Kas mulaina ti bulan {{date("M-Y",$timeStart)}}
+
                  @endif
          </td>
          @else

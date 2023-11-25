@@ -93,6 +93,72 @@ class PengeluaranController extends Controller
             $data_pengeluaran->pengurus_id = Auth::user()->data_warga_id;
             $data_pengeluaran->kode =  $data_anggaran->kode . date('dmyhis', strtotime($request->tanggal)); //jika kode ini di ambil dari pengajuan maka ngambil dari sini
         }
+        // Untuk notif Wa
+        $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+        $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+        $role_bendahara = Role::where('nama_role', 'Bendahara')->first(); //Untuk mengambil data sesuai nama role
+        $bendahara = User::where('role_id', $role_bendahara->id)->first(); // mengambil satu data sesuai dengan role
+        $role_sekertaris = Role::where('nama_role', 'Sekertaris')->first(); //Untuk mengambil data sesuai nama role
+        $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
+        $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
+        $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
+
+        $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $Sekertaris = User::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
+        $all = User::where('role_id', 3)->get();
+
+        $token = "@Mx6RkRVz60S#j8YGi6T";
+
+        foreach ($all as $data) {
+            $target = $data;
+        }
+        $nominal = number_format($request->jumlah, 2, ',', '.');
+        $pengurus = Auth::User()->data_warga->nama;
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => '083825740395',
+                'message' => "Pesan Otomatis   
+
+Alhamdulilah
+Pengajuan atos di setujui atos di konfirmasi ku $pengurus dengan data sesuai di Handap
+
+ID : $request->kode
+Tanggal : $request->tanggal
+Kategori : Pinjaman
+Nominal : Rp.$nominal
+$target
+
+Status : Proses
+
+Pinjaman atos di setujui kantun ngambil artosna, Nuhun
+
+Kas Keluarga Ma HAYA
+http://keluargamahaya.online
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+        //sampe die
 
         $data_pengeluaran->save();
 

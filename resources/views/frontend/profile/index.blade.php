@@ -24,7 +24,7 @@
                     <b>No INduk</b> <a class="float-right">{{ $data_warga->id }}</a>
                 </li>
             </ul> -->
-            <a href="{{route('profile.edit',Crypt::encrypt($data_warga->id))}}" class="btn btn-primary btn-block"><b>Edit Profile</b></a>
+            <a href="{{route('profile.edit.data')}}" class="btn btn-primary btn-block"><b>Edit Profile</b></a>
 
         </div>
         <!-- /.card-body -->

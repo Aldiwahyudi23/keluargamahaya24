@@ -5,6 +5,7 @@ use App\Http\Controllers\AccessProgramController;
 use App\Http\Controllers\AccessSubMenuController;
 use App\Http\Controllers\AllRouteUrlController;
 use App\Http\Controllers\AnggaranController;
+use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BantuanController;
 use App\Http\Controllers\BayarPinjamanController;
 use App\Http\Controllers\DataWargaController;
@@ -191,6 +192,11 @@ Route::resource('tabungan', TabunganController::class)->middleware(['auth', 'ver
 Route::get('tabungans/{id}', [TabunganController::class, 'tabungan_user'])->middleware(['auth', 'verified'])->name('tabungan_user');
 Route::get('simulasi-kredit/', [HomeController::class, 'simulasi_kredit'])->middleware(['auth', 'verified'])->name('simulasi_kredit');
 
+//Data Asset
+Route::resource('aset', AsetController::class)->middleware(['auth', 'verified']);
+Route::get('/asets/trash/', [AsetController::class, 'trash'])->middleware(['auth', 'verified', 'checkRole:Admin'])->name('aset.trash');
+Route::post('/asets/kill/{id}', [AsetController::class, 'kill'])->middleware(['auth', 'verified', 'checkRole:Admin'])->name('aset.kill');
+Route::get('/asets/restore/{id}', [AsetController::class, 'restore'])->middleware(['auth', 'verified', 'checkRole:Admin'])->name('aset.restore');
 
 
 require __DIR__ . '/auth.php';
