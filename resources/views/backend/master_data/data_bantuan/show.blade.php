@@ -44,9 +44,12 @@
                 <center>
                     <p>Cek Video na</p>
                 </center>
-                <video src="{{asset($data_bantuan->video)}}" controls width="100%"></video>
+                
+                <iframe width="100%" src="{{$data_bantuan->video}}" frameborder="0" allowfullscreen></iframe>
                 @else
                 @endif
+                
+                
             </div>
         </div>
     </div><!-- /.container-fluid -->

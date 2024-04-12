@@ -12,6 +12,7 @@
                 <thead>
                     <tr>
                         <th>No.</th>
+                        <th>ID Transaksi</th>
                         <th>Nama</th>
                         <th>Nominal</th>
                         <th>Bulan</th>
@@ -26,6 +27,7 @@
                     @foreach ($data_pengeluaran as $data)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
+                        <td> {{$data->kode}}</td>
                         <td>{{$data->data_warga->nama}}</td>
                         <td>{{ "Rp " . number_format($data->jumlah,2,',','.') }}</td>
                         <td>{{date('M-y',strtotime($data->tanggal)) }}</td>

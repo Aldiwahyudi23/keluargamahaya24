@@ -8,6 +8,7 @@ use App\Models\AccessProgram;
 use App\Models\FotoUser;
 use App\Models\HubunganWarga;
 use App\Models\LayoutAppUser;
+use App\Models\Role;
 use App\Models\UpdateKerja;
 use App\Models\User;
 use DateTime;
@@ -15,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use phpDocumentor\Reflection\PseudoTypes\False_;
+use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class DataWargaController extends Controller
 {
@@ -288,18 +291,21 @@ class DataWargaController extends Controller
         $request->validate(
             [
                 'name' => 'required',
+                'no_hp' => 'required|numeric|digits_between:10,12',
                 'email' => 'required',
                 'role_id' => 'required',
                 'data_warga_id' => 'required',
             ],
             [
                 'nama.required' => 'Nama Kedah di isin',
+                'no_hp.required' => 'Punten No HP kedah anu leres kedah nu aktif',
+                'no_hp.numeric' => 'Punten No HP kedah angka hungkul',
+                'no_hp.digits_between' => 'Punten No HP kedah anu leres, anu aktif di WA',
                 'email.required' => 'email Kedah di isin',
                 'role_id.required' => 'Role Kedah di isin',
                 'data_warga_id.required' => 'Data Warga Kedah di isin',
             ]
         );
-
         $data_user = new User();
         $data_user->name = $request->name;
         $data_user->email = $request->email;
@@ -311,6 +317,93 @@ class DataWargaController extends Controller
         $data_email = DataWarga::find($request->data_warga_id);
         $data_email->email = $request->email;
         $data_email->update();
+        //untuk notif WA
+        $pengaju = Auth::user()->name;
+        $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+        $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+        $role_sekertaris = Role::where('nama_role', 'Sekertaris')->first(); //Untuk mengambil data sesuai nama role
+        $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
+
+        $token = "@Mx6RkRVz60S#j8YGi6T";
+        $target = "$ketua->data_warga->no_hp, $sekertaris->data_warga->no_hp, $request->no_hp";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $target,
+                'message' => "Assalamualaikum
+
+Pendaftaran Akun keluarga atos rengse, di daftarkeun ku $pengaju, mangga Login sesuai data nu di handap.
+Email   : $request->email
+Kata Sandi   : 12345678
+
+Gunakeun Akun ieu sesuai fungsina, tiasa ngecek data pemasukan sareng pengeluaran.
+
+Catatan ! 
+Saatos lebet mangga verifikasi email, tutor cara verifikasi bakal di kintun 
+
+Salam Sukses
+
+Kas Keluarga Ma HAYA
+http://keluargamahaya.online
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+        // sampe die
+        //untuk notif Tutorial
+        $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+        $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+        $token = "@Mx6RkRVz60S#j8YGi6T";
+        $target = "$request->no_hp";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $target,
+                'message' => "Tutorial Verifikasi
+Mangga cek VIDEO Youtube ieu kanggo memahami verifikasi
+
+https://youtu.be/eZ_VsKeH9rE
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+        // sampe die
 
         $data_user->save();
 

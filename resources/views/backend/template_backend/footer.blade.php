@@ -3,6 +3,7 @@
     use App\Models\AccessProgram;
     use App\Models\DataWarga;
     use App\Models\FotoUser;
+    use App\Models\HubunganWarga;
     use App\Models\LayoutAppUser;
     use App\Models\MenuFooter;
     use App\Models\ProfileApp;
@@ -15,6 +16,23 @@
 
     $user = DataWarga::find(Auth::user()->data_warga_id);
     $foto = FotoUser::where('data_warga_id', $user->id)->where('is_active', 1)->first();
+    if ($user->jenis_kelamin = "Laki-Laki") {
+        $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
+        if ($cek_hubungan->count() == 1) {
+            $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+            $data_user = $cek_user->id;
+        } else {
+            $data_user = Auth::user()->id;
+        }
+    } else {
+        $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
+        if ($cek_hubungan->count() == 1) {
+            $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+            $data_user = $cek_user->id;
+        } else {
+            $data_user = Auth::user()->id;
+        }
+    }
     ?>
 
  <aside class="control-sidebar control-sidebar-dark">
@@ -26,7 +44,7 @@
  <footer class=" navbar-light navbar-expand d-md-none d-lg-none d-xl-none" style="background-color: {{$warna_menu->menu}};" id="headera">
      <ul class="navbar-nav nav-justified nav nav-treeview nav-pills" data-widget="treeview" role="menu" data-accordion="false">
          @foreach($data_menu_footer as $data)
-         <?php $access_program = AccessProgram::where('user_id', Auth::user()->id)->where('program_id', $data->program_id); ?>
+         <?php $access_program = AccessProgram::where('user_id', $data_user)->where('program_id', $data->program_id); ?>
          @if( $access_program->count() == 1)
          @if($data->kategori == 1)
          <li class="nav-item">

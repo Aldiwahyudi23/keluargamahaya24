@@ -15,10 +15,11 @@
                     <thead>
                         <tr class="bg-light">
                             <th>No.</th>
+                            <th>ID Transaksi</th>
                             <th>Pengaju</th>
-                            <th>Ket.</th>
                             <th>Tanggal</th>
                             <th>Jumlah</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,8 +37,9 @@
                         <?php $no++;
                         $status2 = DB::table('pengeluarans')->find($data->id);
                         ?>
-                        <tr class="text-bold">
+                        <tr class="">
                             <td>{{$no}}</td>
+                            <td> {{$data->kode}}</td>
                             <td>{{$data->data_warga->nama}}</td>
                             <td>{{$data->tanggal}}</td>
                             <td>{{ "Rp " . number_format($data->jumlah,2,',','.') }}</td>

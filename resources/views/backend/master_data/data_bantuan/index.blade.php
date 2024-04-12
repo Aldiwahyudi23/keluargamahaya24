@@ -37,8 +37,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="account-company">Video</label>
-                                <input type="file" class="form-control" name="video" id="video" required />
-                                <span class="text-danger" style="font-size: 13px">Lebih sae ngange video.</span>
+                                <input type="text" class="form-control" name="video" id="video" placeholder="https://www.youtube.com/embed/4jLhj6Ru418?si=B4NZWgoi8aFNwiiq"/>
+                                <span class="text-danger" style="font-size: 13px">Lebih sae ngange video. Format link (https://www.youtube.com/embed/Id youtube)</span>
                             </div>
 
 

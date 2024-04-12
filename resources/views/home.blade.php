@@ -1,10 +1,17 @@
 @extends('backend.template_backend.layout')
 
+         
 @section('content')
+
+<?php
+    use App\Models\AccessProgram;
+    ?>
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
         <!-- Info boxes -->
+         <?php $access_program = AccessProgram::where('user_id', Auth::user()->id)->where('program_id', 1); ?>
+        @if( $access_program->count() == 1)
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">SALDO KAS</h3>
@@ -26,6 +33,7 @@
             </div>
             <!-- /.card-footer -->
         </div>
+        @endif
         <!-- Halaman untuk menu -->
         <div class="row">
             <div class="col-md-12">
@@ -69,6 +77,7 @@
         <div class="row">
             <!-- Left col -->
 
+           @if( $access_program->count() == 1)
             <div class="col-md-6">
                 <!-- TABLE: LATEST ORDERS -->
                 <div class="card">
@@ -122,6 +131,7 @@
                 </div>
                 <!-- /.card -->
             </div>
+            @endif
             <div class="col-md-6">
                 <!-- PRODUCT LIST -->
                 <div class="card">
@@ -179,4 +189,10 @@
     </div><!--/. container-fluid -->
 </section>
 <!-- /.content -->
+
+@endsection
+@section('script')
+<script>
+    $("#Home").addClass("active");
+</script>
 @endsection

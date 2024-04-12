@@ -38,10 +38,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="account-company">Video</label>
-                                <input type="file" class="form-control" name="video" id="video" value="{{$bantuan->video}}" required />
-                                <span class="text-danger" style="font-size: 13px">Lebih sae ngange video.</span>
+                                <input type="text" class="form-control" name="video" id="video" value="{{$bantuan->video}}" placeholder="https://www.youtube.com/embed/4jLhj6Ru418?si=B4NZWgoi8aFNwiiq" />
+                                <span class="text-danger" style="font-size: 13px">Lebih sae ngange video. Format link (https://www.youtube.com/embed/Id youtube)</span>
                             </div>
 
+
+                <iframe width="100%" src="{{$bantuan->video}}" frameborder="0" allowfullscreen></iframe>
                             <hr>
                             <button onclick="tombol()" id="myBtn" type="submit" class="btn btn-primary btn-sm"><i class="fas fa-pen"></i> Geuntos</button>
                             <div id="tombol_proses"></div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengeluaran;
 use App\Http\Controllers\Controller;
+use App\Notifications\EmailNotification;
 use App\Models\AccessProgram;
 use App\Models\Anggaran;
 use App\Models\BayarPinjaman;
@@ -15,9 +16,12 @@ use App\Models\Pemasukan;
 use App\Models\Pengajuan;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Notification;
 
 class PengeluaranController extends Controller
 {
@@ -110,11 +114,10 @@ class PengeluaranController extends Controller
 
         $token = "@Mx6RkRVz60S#j8YGi6T";
 
-        foreach ($all as $data) {
-            $target = $data;
-        }
+        $target = "$bendahara->data_warga->no_hp, $penasehat->data_warga->no_hp, $DataWarga->no_hp";
         $nominal = number_format($request->jumlah, 2, ',', '.');
         $pengurus = Auth::User()->data_warga->nama;
+        $anggarann = Anggaran::find($request->anggaran_id);
 
         $curl = curl_init();
 
@@ -128,21 +131,18 @@ class PengeluaranController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array(
-                'target' => '083825740395',
+                'target' => $target,
                 'message' => "Pesan Otomatis   
 
 Alhamdulilah
-Pengajuan atos di setujui atos di konfirmasi ku $pengurus dengan data sesuai di Handap
+Penginputan PENGELUARAN atos di input ku $pengurus dengan data sesuai di Handap
 
 ID : $request->kode
 Tanggal : $request->tanggal
-Kategori : Pinjaman
+Kategori : $anggarann->nama_anggaran
 Nominal : Rp.$nominal
-$target
 
-Status : Proses
-
-Pinjaman atos di setujui kantun ngambil artosna, Nuhun
+Pengeluaran atos di input, Nuhun
 
 Kas Keluarga Ma HAYA
 http://keluargamahaya.online
@@ -159,6 +159,25 @@ http://keluargamahaya.online
         curl_close($curl);
         echo $response;
         //sampe die
+        // Kanggo send notifikasi
+        $all = User::all();
+        $anggaran = Anggaran::find($request->anggaran_id);
+
+        $project = [
+            'greeting' => 'Bissmillah',
+            'body' => 'Ngalaporkeun Pengeluaran KAS seseuai DATA di Handap anu di Input ku ' . Auth::user()->name . ' Mangga cek deui, kedah selalu ngecek kana data',
+            'nama' => 'Di Input ku ' . Auth::user()->name . '/' . $request->kode,
+            'kategori' => $anggaran->nama_anggaran,
+            'pembayaran' => 'Jumlah Nu di Kaluarkeun',
+            'jumlah' => 'Rp ' . number_format($request->jumlah, 2, ',', '.'),
+            'tanggal' => $request->tanggal,
+            'thanks' => 'Laporan sesuai data nu tercantum, Hatur nuhun kana perhatosanna',
+            'actionText' => 'cek kanggo ningal secara detail',
+            'actionURL' => url('/'),
+            'id' => 57
+        ];
+
+        Notification::sendnow($all, new EmailNotification($project));
 
         $data_pengeluaran->save();
 
@@ -283,6 +302,25 @@ http://keluargamahaya.online
     public function pengeluaran_index()
     {
 
+        //Untuk menyingkronkan data pasanhan
+        $user = DataWarga::find(Auth::user()->data_warga_id);
+        if ($user->jenis_kelamin = "Laki-Laki") {
+            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
+            if ($cek_hubungan->count() == 1) {
+                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+                $data_user_hubungan = $cek_user->data_warga_id;
+            } else {
+                $data_user_hubungan = Auth::user()->data_warga_id;
+            }
+        } else {
+            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
+            if ($cek_hubungan->count() == 1) {
+                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+                $data_user_hubungan = $cek_user->data_warga_id;
+            } else {
+                $data_user_hubungan = Auth::user()->data_warga_id;
+            }
+        }
         // untuk mengecek saldo pinjaman
         // untuk info saldo
         // data Pemasukan
@@ -326,6 +364,7 @@ http://keluargamahaya.online
         $total_bayar_pinjaman_cash = BayarPinjaman::where('pembayaran', 'Cash')->sum('jumlah');
         $total_bayar_pinjaman_tf = BayarPinjaman::where('pembayaran', 'Transfer')->sum('jumlah');
 
+        $total_sisa_pinjaman = $total_dana_pinjam -  $total_pengeluaran_pinjaman + $total_bayar_pinjaman_semua;
 
         // Perhitungan Tabungan
         $total_tabungan = Pemasukan::where('kategori_id', 2)->sum('jumlah');
@@ -336,15 +375,16 @@ http://keluargamahaya.online
         // ===========================================================
 
         $data_user = User::all();
-        $data_pengeluaran_pinjaman = Pengeluaran::where('pengaju_id', Auth::user()->data_warga_id)->where('anggaran_id', 3); //mengambil data pinjaman user
-        $data_hubungan = HubunganWarga::where('warga_id', Auth::user()->data_warga_id)->get(); //mengambil data hubungan dengan anggota
+        $data_pengeluaran_pinjaman = Pengeluaran::where('pengaju_id', $data_user_hubungan)->where('anggaran_id', 3); //mengambil data pinjaman user
+        $data_pengeluaran_pinjaman_warga = Pengeluaran::where('data_warga_id', $data_user_hubungan)->where('anggaran_id', 3); //mengambil data pinjaman user
+        $data_hubungan = HubunganWarga::where('warga_id', $data_user_hubungan)->get(); //mengambil data hubungan dengan anggota
         $data_warga = DataWarga::all(); //mengambil data data warga
 
-        $cek_pengajuan = Pengajuan::where('data_warga_id', Auth::user()->data_warga_id)->where('kategori_id', 4)->count();
-        $cek_pengajuan_proses = Pengajuan::where('pengaju_id', Auth::user()->data_warga_id)->get();
+        $cek_pengajuan = Pengajuan::where('data_warga_id', $data_user_hubungan)->where('kategori_id', 4)->count();
+        $cek_pengajuan_proses = Pengajuan::where('pengaju_id', $data_user_hubungan)->get();
 
         $cek_pengeluaran_pinjaman = Pengeluaran::where('anggaran_id', 3)->where('status', 'Nunggak')->count(); //mengecek apakah pinjaman yang masih nunggak sudah melebihi batas yang telah di tentukan
-        $cek_pengeluaran_pinjaman_user = Pengeluaran::where('anggaran_id', 3)->where('data_warga_id', Auth::user()->data_warga_id)->where('status', 'Nunggak')->count(); //mengecek pinjaman apakah sudah lunas atau masih nunggak
+        $cek_pengeluaran_pinjaman_user = Pengeluaran::where('anggaran_id', 3)->where('data_warga_id', $data_user_hubungan)->where('status', 'Nunggak')->count(); //mengecek pinjaman apakah sudah lunas atau masih nunggak
 
         // Data Anggaran
         $data_anggaran = Anggaran::all();
@@ -355,13 +395,13 @@ http://keluargamahaya.online
         $cek_total_pinjaman = $tahap_1 / 2; // Menghitung total Anggaran
         $jatah = $cek_total_pinjaman * $data_anggaran_max_pinjaman->persen / 100; //Jath Persenan di ambil dari data anggaran
 
-
         $layout_pengeluaran = LayoutPengeluaran::first();
 
         return view('frontend.pengeluaran.pinjaman.index', compact(
             'data_user',
             'data_warga',
             'data_pengeluaran_pinjaman',
+            'data_pengeluaran_pinjaman_warga',
             'data_hubungan',
             'cek_pengajuan',
             'cek_pengajuan_proses',
@@ -393,7 +433,8 @@ http://keluargamahaya.online
             'uang_blum_diTF',
             'total_pengeluaran_kas_3',
             'total_bayar_pinjaman_lebih',
-            'jatah'
+            'jatah',
+            'total_sisa_pinjaman'
         ));
     }
 
@@ -486,6 +527,7 @@ http://keluargamahaya.online
         $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $Sekertaris = User::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
         $token = "@Mx6RkRVz60S#j8YGi6T";
@@ -514,7 +556,8 @@ Pengajuan atos di setujui atos di konfirmasi ku $pengurus dengan data sesuai di 
 ID : $request->kode
 Tanggal : $request->tanggal
 Kategori : Pinjaman
-Nama : $DataWarga->nama
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
 Nominal : Rp.$nominal
 Pengambilan : $request->pembayaran
 

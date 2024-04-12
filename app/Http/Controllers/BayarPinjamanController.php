@@ -110,12 +110,13 @@ class BayarPinjamanController extends Controller
         $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
         $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
-
+        $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $token = "@Mx6RkRVz60S#j8YGi6T";
         $target = "$ketua->data_warga->no_hp,$DataWarga";
         $nominal = number_format($request->jumlah, 2, ',', '.');
-        $pengurus = User::Find($data_pemasukan->pengurus_id);
+        $pengurus = User::Find(auth::user()->id);
+        $pengurus_acc = $pengurus->data_warga->nama;
 
         if ($jumlah_bayarpinjaman - $jumlah_pinjaman >= 0) {
             $RpSisaHutang = "LUNAS";
@@ -145,11 +146,12 @@ class BayarPinjamanController extends Controller
                         Pesan Otomatis       
 
 Info ti pusattt
-Pengajuan pembayaran pinjaman atos di setujui atos di konfirmasi ku $pengurus->name dengan data sesuai di Handap
+Pengajuan pembayaran pinjaman atos di setujui atos di konfirmasi ku $pengurus_acc dengan data sesuai di Handap
 
 ID : $data_pemasukan->kode
 Tanggal : $request->tanggal
-Nama : $DataWarga->nama
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
 Nominal : Rp.$nominal /$request->pembayaran
 
 Sisa hutang : Rp.$RpSisaHutang
@@ -238,6 +240,10 @@ http://keluargamahaya.online
         $data_pemasukan->keterangan = $request->keterangan;
         $data_pemasukan->jumlah = $request->jumlah;
 
+        if ($request->kode == false) {
+            $data_pemasukan->kode = "BP" . date('dmyhis', strtotime($request->tanggal));
+        }
+
         if ($request->foto) {
             $data_pemasukan->foto          = "/img/bukti/$nama";
         }
@@ -299,7 +305,6 @@ http://keluargamahaya.online
 
         $bayar_pinjam = BayarPinjaman::where('pengeluaran_id', $id)->get();
         $total_bayar_pinjam = BayarPinjaman::where('pengeluaran_id', $id)->sum('jumlah');
-
         $data_pinjaman = Pengeluaran::find($id);
 
         return view('frontend.pemasukan.bayar_pinjaman.form_bayar_pinjam', compact(

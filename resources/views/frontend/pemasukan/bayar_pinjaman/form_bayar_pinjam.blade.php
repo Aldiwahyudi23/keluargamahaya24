@@ -20,6 +20,12 @@
                         <table id="example1" class="table table-bordered table-striped table-hover">
                             <tbody>
                                 <tr>
+                                    <td width="150px">ID Transaksi</td>
+                                    <td width="10px">:</td>
+                                    <td>{{ $data_pinjaman->kode}}</td>
+                                </tr>
+
+                                <tr>
                                     <td width="150px">Anggaran</td>
                                     <td width="10px">:</td>
                                     <td>{{ $data_pinjaman->anggaran->nama_anggaran }}</td>
@@ -200,6 +206,19 @@
 
 @endsection
 @section('script')
+<!-- SCrip Untuk tanda bukti pembayaran -->
+<script>
+    $(document).ready(function() {
+        $('#pembayaran').change(function() {
+            var kel = $('#pembayaran option:selected').val();
+            if (kel == "Transfer") {
+                $("#noId").html('<label for="account-company">Bukti Transfer</label><input type="file" class="form-control col-12" name="foto" id="foto" required /><span class="text-danger" style="font-size: 13px">Harap kirim tanda bukti transferan.</span>');
+            } else {
+                $("#noId").html('');
+            }
+        });
+    });
+</script>
 <script>
     $("#bayar").addClass("active");
 </script>

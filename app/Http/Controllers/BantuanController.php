@@ -44,17 +44,18 @@ class BantuanController extends Controller
                 'deskripsi.required'  => "Deskripsi kedah di isi sareng detail",
             ]
         );
-        if ($request->video) {
-            $file = $request->file('video');
-            $nama = 'Video-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('/video/bantuan'), $nama);
-        }
+        //if ($request->video) {
+            //$file = $request->file('video');
+            //$nama = 'Video-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
+            //$file->move(public_path('/video/bantuan'), $nama);
+        //}
 
         $data = new Bantuan();
         $data->nama_bantuan     = $request->nama_bantuan;
         $data->deskripsi        = $request->deskripsi;
         if ($request->video) {
-            $data->video          = "/video/bantuan/$nama";
+            $data->video          = $request->video;
+            //$data->video          = "/video/bantuan/$nama";
         }
 
         $data->save();
@@ -102,17 +103,18 @@ class BantuanController extends Controller
             ]
         );
 
-        if ($request->video) {
-            $file = $request->file('video');
-            $nama = 'Video-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('/video/bantuan'), $nama);
-        }
+        //if ($request->video) {
+            //$file = $request->file('video');
+            //$nama = 'Video-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
+            //$file->move(public_path('/video/bantuan'), $nama);
+        //}
 
         $data = Bantuan::find($id);
         $data->nama_bantuan     = $request->nama_bantuan;
         $data->deskripsi        = $request->deskripsi;
         if ($request->video) {
-            $data->video          = "/video/bantuan/$nama";
+            //$data->video          = "/video/bantuan/$nama";
+            $data->video          = $request->video;
         }
 
         $data->update();

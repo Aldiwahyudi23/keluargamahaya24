@@ -306,7 +306,7 @@
                                     @else
                                     <input type="hiiden" name="email" id="email" value="{{$data->email}}"> <br>
                                     @endif
-                                    <input type="hidden" name="role_id" id="role_id" value="2">
+                                    <input type="hidden" name="role_id" id="role_id" value="7">
                                     <input type="hidden" name="name" id="name" value="{{$data->nama}}">
                                     <input type="hidden" name="data_warga_id" id="data_warga_id" value="{{$data->id}}">
 

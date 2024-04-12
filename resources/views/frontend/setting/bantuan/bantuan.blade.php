@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
+<!-- pengambil data untuk profile app -->
+<?php
+
+use App\Models\ProfileApp;
+
+$profile_app = ProfileApp::first();
+?>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +40,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="brand-link" style="color: #fff;" data-widget="pushmenu" href="#">
-                        <img src="{{ asset('img/layout/logo.jpg') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3">
+                        <img src="{{ asset($profile_app->logo) }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3">
                     </a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
@@ -143,7 +152,8 @@
                     <center>
                         <p>Cek Video na</p>
                     </center>
-                    <video src="{{asset($detail_bantuan->video)}}" controls width="100%"></video>
+                    
+                <iframe width="100%" src="{{$detail_bantuan->video}}" frameborder="0" allowfullscreen></iframe>
                     @else
                     @endif
                     <!-- /.row -->

@@ -17,6 +17,10 @@
                         <div class="row">
                             <input type="hidden">
                             <div class="col-md-6">
+                            <div class="form-group">
+                                    <label for="tanggal">ID Transaksi (hidden)</label>
+                                    <input type="text" id="" name="" value="{{$data_bayar_pinjaman->kode}}" placeholder="ID Kosong" class="form-control" disabled>
+                                </div>
                                 <div class="form-group">
                                     <label for="pengeluaran_id">pengeluaran</label>
                                     <select name="pengeluaran_id" id="pengeluaran_id" class="form-control select2bs4 @error('pengeluaran_id') is-invalid @enderror" required>
@@ -37,6 +41,8 @@
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal Pengajuan (hidden) </label>
                                     <input type="datetime-local" id="" name="" value="{{$data_bayar_pinjaman->tanggal}}" placeholder="Nama inisial" class="form-control" disabled>
+                                    <input type="hidden" id="tanggal" name="tanggal" value="{{$data_bayar_pinjaman->tanggal}}">
+                                </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal Di Setujui (hidden)</label>

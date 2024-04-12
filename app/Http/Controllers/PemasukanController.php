@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Access_Pemasukan;
 use App\Models\AccessProgram;
 use App\Models\DataWarga;
+use App\Models\HubunganWarga;
 use App\Models\KategoriAnggaranProgram;
 use App\Models\Layout_Pemasukan;
 use App\Models\LayoutPengeluaran;
@@ -109,7 +110,7 @@ class PemasukanController extends Controller
         $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
         $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
-
+        $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
         $token = "@Mx6RkRVz60S#j8YGi6T";
@@ -141,7 +142,8 @@ Pengajuan atos di setujui atos di konfirmasi ku $pengurus_acc dengan data sesuai
 ID : $data_pemasukan->kode
 Tanggal : $request->tanggal
 Kategori : $DataKategori->nama_kategori
-Nama : $DataWarga->nama
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
 Nominal : Rp.$nominal /$request->pembayaran
 
 STATUS : SUKSES
@@ -228,6 +230,8 @@ http://keluargamahaya.online
             $file->move(public_path('/img/bukti'), $nama);
         }
 
+        $data_ketegori = KategoriAnggaranProgram::find($request->kategori_id);
+
         $data_pemasukan = Pemasukan::find($id);
         $data_pemasukan->data_warga_id = $request->data_warga;
         $data_pemasukan->jumlah = $request->jumlah;
@@ -235,6 +239,7 @@ http://keluargamahaya.online
         $data_pemasukan->kategori_id = $request->kategori_id;
         $data_pemasukan->keterangan = $request->keterangan;
         $data_pemasukan->pengurus_id = Auth::user()->data_warga_id;
+        $data_pemasukan->kode =  $data_ketegori->kode . date('dmyhis', strtotime($request->tanggal));
 
         if ($request->foto) {
             $data_pemasukan->foto          = "/img/bukti/$nama";
@@ -293,14 +298,34 @@ http://keluargamahaya.online
         $data_warga = DataWarga::all();
         $layout_pemasukan = Layout_Pemasukan::first();
         $data_kategori = KategoriAnggaranProgram::all();
-        $data_pemasukan_kas_user = Pemasukan::orderByRaw('created_at DESC')->where('data_warga_id', Auth::user()->data_warga_id)->where('kategori_id', 1)->get();
+        //Untuk menyingkronkan data pasanhan
+        $user = DataWarga::find(Auth::user()->data_warga_id);
+        if ($user->jenis_kelamin = "Laki-Laki") {
+            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
+            if ($cek_hubungan->count() == 1) {
+                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+                $data_user = $cek_user->data_warga_id;
+            } else {
+                $data_user = Auth::user()->data_warga_id;
+            }
+        } else {
+            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
+            if ($cek_hubungan->count() == 1) {
+                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+                $data_user = $cek_user->data_warga_id;
+            } else {
+                $data_user = Auth::user()->data_warga_id;
+            }
+        }
+        //
+        $data_pemasukan_kas_user = Pemasukan::orderByRaw('created_at DESC')->where('data_warga_id', $data_user)->where('kategori_id', 1)->get();
         $data_pemasukan_semua = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', '1')->get();
         $data_pemasukan_setor_tunai = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', '3')->get();
 
-        $cek_pengajuan = Pengajuan::where('kategori_id', 1)->where('data_warga_id', Auth::user()->data_warga_id)->count();
-        $cek_pemasukan_terakhir = Pemasukan::orderByRaw('created_at DESC LIMIT 1')->where('kategori_id', 1)->where('data_warga_id', Auth::user()->data_warga_id)->get();
-        $cek_pemasukan_terakhir_total = Pemasukan::orderByRaw('created_at DESC LIMIT 1')->where('kategori_id', 1)->where('data_warga_id', Auth::user()->data_warga_id)->count();
-        $cek_pemasukan_terakhir_all = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', 1)->where('data_warga_id', Auth::user()->data_warga_id)->sum('jumlah');
+        $cek_pengajuan = Pengajuan::where('kategori_id', 1)->where('data_warga_id', $data_user)->count();
+        $cek_pemasukan_terakhir = Pemasukan::orderByRaw('created_at DESC LIMIT 1')->where('kategori_id', 1)->where('data_warga_id', $data_user)->get();
+        $cek_pemasukan_terakhir_total = Pemasukan::orderByRaw('created_at DESC LIMIT 1')->where('kategori_id', 1)->where('data_warga_id', $data_user)->count();
+        $cek_pemasukan_terakhir_all = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', 1)->where('data_warga_id', $data_user)->sum('jumlah');
 
         // data untuk table data user 
         $data_anggota = User::all();

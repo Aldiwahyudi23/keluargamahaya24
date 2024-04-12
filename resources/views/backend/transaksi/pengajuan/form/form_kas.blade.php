@@ -6,11 +6,12 @@
 // mengambil tanggal ysng di resmikan pada table prograam
 
 use App\Models\DataWarga;
+use App\Models\HubunganWarga;
 use App\Models\Program;
 use App\Models\UpdateKerja;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-$data_user = DataWarga::find(Auth::user()->data_warga_id);
 $program = Program::find(1); //find id 1 adalah mengambil id dari data program dengan id 1 ya itu kas keluarga
 $setor = $program->jumlah - 1;
 
@@ -33,6 +34,40 @@ $all_kas_kerja = $all_kas * $program->jumlah;
 $sisa_kas = $all_kas_kerja - $cek_pemasukan_terakhir_all;
 $sisa_bulan = $sisa_kas / $program->jumlah;
 
+$user = DataWarga::find(Auth::user()->data_warga_id);
+if ($user->jenis_kelamin = "Laki-Laki") {
+    $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
+    if ($cek_hubungan->count() == 1) {
+        $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+        $data_user = $cek_user->data_warga_id;
+        //untuk mengecek status pekerjaan
+        $data_warga = DataWarga::find($data_user);
+        if ($data_warga->status = "Tidak Bekerja") {
+            $status_pekerjaan = $user->status;
+        } else {
+            $status_pekerjaan = $data_warga->status;
+        }
+    } else {
+        $data_user = Auth::user()->data_warga_id;
+        $status_pekerjaan = $user->status;
+    }
+} else {
+    $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
+    if ($cek_hubungan->count() == 1) {
+        $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
+        $data_user = $cek_user->data_warga_id;
+        //untuk mengecek status pekerjaan
+        $data_warga = DataWarga::find($data_user);
+        if ($data_warga->status = "Tidak Bekerja") {
+            $status_pekerjaan = $user->status;
+        } else {
+            $status_pekerjaan = $data_warga->status;
+        }
+    } else {
+        $data_user = Auth::user()->data_warga_id;
+        $status_pekerjaan = $user->status;
+    }
+}
 ?>
 @if ($cek_pemasukan_terakhir_total == 0)
 <center>
@@ -44,7 +79,7 @@ $sisa_bulan = $sisa_kas / $program->jumlah;
         @foreach ($cek_pemasukan_terakhir as $data)
         <tr>
             <td>Pembayaran terakhir <b> {{$data->data_warga->nama}} </b> di Bulan <b> {{date('M-y',strtotime($data->tanggal)) }} </b> <br> <br>
-                @if($data_user->status == "Tidak Bekerja")
+                @if($status_pekerjaan == "Tidak Bekerja")
                 Status Pekerjaan Akun Tidak Bekerja, jadi jika kalau emang status nya tidak bekerja maka tidak diwajibkan untuk bayar namun jika mau bayar bisa klik aja tombol di bawah <br> masa tidak bekerja {{$update_kerja}}, NUHUN. <br> Alhamdulilah Ayeuna teh nuju jalan bulan ka {{$numBulan}} <br>
                 <a href="#demo" class="btn btn-info" data-toggle="collapse">Pami bade bayar, Klik wae atuh supados muncul</a>
                 <!-- dab jika tida -->
@@ -77,7 +112,7 @@ $sisa_bulan = $sisa_kas / $program->jumlah;
 @endif
 
 
-@if($data_user->status == "Tidak Bekerja" || $sisa_kas <= 0) <div id="demo" class="collapse">
+@if($status_pekerjaan == "Tidak Bekerja" || $sisa_kas <= 0) <div id="demo" class="collapse">
     @else
     <div class="">
         @endif
@@ -116,7 +151,7 @@ $sisa_bulan = $sisa_kas / $program->jumlah;
                 @enderror
             </div>
             <hr>
-            <input type="hidden" name="data_warga" id="data_warga" value="{{Auth::user()->data_warga_id}}">
+            <input type="hidden" name="data_warga" id="data_warga" value="{{$data_user}}">
             <input type="hidden" name="pengaju_id" id="pengaju_id" value="{{Auth::user()->data_warga_id}}">
             <input type="hidden" name="kategori_id" id="kategori_id" value="1">
             <input type="hidden" name="kode" id="kode" value="KA{{date('dmyhis') }}">

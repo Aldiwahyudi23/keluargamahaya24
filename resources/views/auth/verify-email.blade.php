@@ -1,25 +1,33 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+@extends('backend.template_backend.layout')
 
-    @if (session('status') == 'verification-link-sent')
+@section('content')
+
+<body class="justify-content-center">
+    <center>
+        <h1>Hapunten !</h1>
+        <img src="https://c.tenor.com/Z8ezUHZzcLoAAAAC/love.gif" alt="">
+        @if (session('status') == 'verification-link-sent')
         <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+            {{ __('Link kanggo verifikasi atos di kirim ka email anu terdaftar, mangga cek heula email na tras klik verifikasi.') }}
         </div>
-    @endif
+        @else
+        <h4>Akun Anjeun Teu Acan di Verifikasi</h4>
+        <h6>Punten anjen teu acan verifikasi emailna, Kanggo ngange aplikasi KAS KELUARGA kedah ngange email nu aktif soal na pemberitahuan pasti lewat email. Janten punten sakali deui mangga verifikasi heula atanapi pami email na teu acan sesuai mangga gera gentos. Hatur Nuhun</h6>
 
-    <div class="mt-4 flex items-center justify-between">
+        @endif
+        <a id="btn_mau" href="http://api.whatsapp.com/send?phone=6283825740395&text=Punten A Admin, Akun Abdi teu acan AKTIF . Hoyong di aktifkeun nya, Nuhun">Chat Official</a>
+        <button id="btn_gamau" onclick="gamau(this)" style="position: relative;">Gamau</button>
+        <br>
+        @if (session('status') == 'verification-link-sent')
+        @else
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-
             <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+                <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                    {{ __('Kirim Verifikasi') }}
+                </button>
             </div>
         </form>
-
         <form method="POST" action="{{ route('logout') }}">
             @csrf
 
@@ -27,5 +35,7 @@
                 {{ __('Log Out') }}
             </button>
         </form>
-    </div>
-</x-guest-layout>
+        @endif
+    </center>
+</body>
+@endsection

@@ -21,6 +21,7 @@ use App\Http\Controllers\MenuFooterController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\PesanController;
 use App\Http\Controllers\ProfileAppController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramController;
@@ -127,6 +128,7 @@ Route::get('/pengajuans/kas', [PengajuanController::class, 'index_pemasukan'])->
 Route::get('/pengajuans/tabungan', [PengajuanController::class, 'index_tabungan'])->middleware(['auth', 'verified'])->name('table-pengajuan-tabungan');
 Route::get('/pengajuans/tarik/tabungan', [PengajuanController::class, 'tarik_tabungan'])->middleware(['auth', 'verified'])->name('table-pengajuan-tarik_tabungan');
 Route::get('/pengajuans/pinjam', [PengajuanController::class, 'index_pinjam'])->middleware(['auth', 'verified'])->name('table-pengajuan-pinjaman');
+Route::post('/pengajuans/pinjaman', [PengajuanController::class, 'store_pinjaman'])->middleware(['auth', 'verified'])->name('form-pengajuan-pinjaman');
 Route::get('/pengajuans/bayar', [PengajuanController::class, 'index_bayar_pinjam'])->middleware(['auth', 'verified'])->name('table-pengajuan-bayar_pinjaman');
 Route::get('/pengajuans/laporan/{id}', [PengajuanController::class, 'laporan_pinjaman'])->middleware(['auth', 'verified'])->name('pengajuan.laporan');
 Route::post('/pengajuans/laporan/{id}', [PengajuanController::class, 'kirim_laporan_pinjaman'])->middleware(['auth', 'verified'])->name('kirim_pengajuan.laporan');
@@ -198,5 +200,7 @@ Route::get('/asets/trash/', [AsetController::class, 'trash'])->middleware(['auth
 Route::post('/asets/kill/{id}', [AsetController::class, 'kill'])->middleware(['auth', 'verified', 'checkRole:Admin'])->name('aset.kill');
 Route::get('/asets/restore/{id}', [AsetController::class, 'restore'])->middleware(['auth', 'verified', 'checkRole:Admin'])->name('aset.restore');
 
+Route::get('/pesan', [PesanController::class, 'index'])->middleware(['auth', 'verified'])->name('pesan');
+Route::post('/pesan/kirim/', [PesanController::class, 'kirim_pesan'])->middleware(['auth', 'verified'])->name('pesan.kirim');
 
 require __DIR__ . '/auth.php';

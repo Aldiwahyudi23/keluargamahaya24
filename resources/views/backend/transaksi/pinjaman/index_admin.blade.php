@@ -15,6 +15,7 @@
                     <thead>
                         <tr class="bg-light">
                             <th>No.</th>
+                            <th>ID Transaksi</th>
                             <th>Pengaju</th>
                             <th>Ket.</th>
                             <th>Tanggal</th>
@@ -37,6 +38,7 @@
                         ?>
                         <tr>
                             <td>{{$no}}</td>
+                            <td> {{$data->kode}}</td>
                             <td>{{$data->data_warga->nama}}</td>
                             <td>
                                 {{$data->status}}

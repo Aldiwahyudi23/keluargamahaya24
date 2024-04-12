@@ -2,7 +2,7 @@
        <img src="{{asset($layout_pengeluaran->gambar)}}" alt="" width="50%">
        <h5 class="text-bold card-header bg-light p-0"> FORM PINJAMAN</h5>
    </center>
-   <form id="basic-form" action="{{Route('pengajuan.store')}}" method="POST" enctype="multipart/form-data" novalidate>
+   <form id="basic-form" action="{{Route('form-pengajuan-pinjaman')}}" method="POST" enctype="multipart/form-data" novalidate>
        {{csrf_field()}}
        <div class="form-group">
            <label for="data_warga"><a href="#data_warga" class="" data-toggle="collapse">Data Warga</a></label> <br>
@@ -34,7 +34,12 @@
                <strong>{{ $message }}</strong>
            </div>
            @enderror
-           <span class="text-dark" style="font-size: 10px">Jatah perorang {{$data_anggaran_max_pinjaman->persen}} % tina jumlah sadayana anggaran pinjaman yaeta {{"Rp" . number_format($jatah,2,',','.')}}, teu kengeng ngalebihi.</span>
+           <?php
+
+            $sisa_saldo_pinjamann = $total_dana_pinjam - $total_pengeluaran_pinjaman + $total_bayar_pinjaman_semua;
+            ?>
+           <span class="text-dark" style="font-size: 10px">Maximal nominal Pinjaman nyaeta Rp {{"Rp" . number_format($data_anggaran_max_pinjaman->persen,2,',','.')}} tina jumlah sadayana anggaran pinjaman, teu kengeng ngalebihi. Pami saldo pinjaman di bawah Rp.500.000 maka di sesuaikeun sareng jumlah saldo nu aya (saldo tertera di atas)</span>
+
        </div>
        <div class="form-group">
            <label for="pembayaran">Metode Pembayaran</label>
@@ -75,7 +80,7 @@
        <hr>
        <button onclick="tombol_pinjam()" id="myBtn_pinjam" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> PINJAM</button>
        <div id="tombol_proses"></div>
-       <span class="text-dark" style="font-size: 10px">Pinjaman di batasi Jatah {{$data_anggaran_max_pinjaman->max_orang}} Orang sesuai anggaran nu aya. <br> Ayeuna nembe aya nu Nambut {{$cek_pengeluaran_pinjaman}} Orang, Masih aya sisa jatah {{$data_anggaran_max_pinjaman->max_orang - $cek_pengeluaran_pinjaman }} Orang deui</span>
+       <span class="text-dark" style="font-size: 10px">Ayeuna nembe aya nu Nambut {{$cek_pengeluaran_pinjaman}} Orang. </span>
    </form>
 
    @section('script')
@@ -108,12 +113,12 @@
         // Data Anggaran
         $data_anggaran = Anggaran::all();
         $data_anggaran_max_pinjaman = Anggaran::find(3);
+        $max_pinjaman = $data_anggaran_max_pinjaman->persen + 1;
         $cek_semua_pemasukan = Pemasukan::where('kategori_id', 1)->sum('jumlah');
-        $cek_pemasukan_2 = $cek_semua_pemasukan / 2; // Membagi jumlah semua pemasukan
-        $tahap_1 = $cek_pemasukan_2 * 90 / 100; // Menghitung Jumlah anggaran pinjaman dari hasil pembagian 2,
-        $cek_total_pinjaman = $tahap_1 / 2; // Menghitung total Anggaran
-        $jatah = $cek_total_pinjaman * $data_anggaran_max_pinjaman->persen / 100; //Jath Persenan di ambil dari data anggaran
+        $sisa_saldo_pinjaman = $total_dana_pinjam -  $total_pengeluaran_pinjaman + $total_bayar_pinjaman_semua;
         ?>
+
+
        let jumlah_pinjam = document.getElementById("jumlah");
        let button_pinjam = document.getElementById("myBtn_pinjam");
        button_pinjam.disabled = true;
@@ -123,14 +128,13 @@
            if (document.getElementById("jumlah").value <= 49999) {
                button_pinjam.disabled = true;
                document.getElementById("keterangann").innerHTML = "";
-           } else if (document.getElementById("jumlah").value >= <?php echo $jatah ?>) {
+           } else if (document.getElementById("jumlah").value >= <?php echo $sisa_saldo_pinjaman + 1 ?>) {
                button_pinjam.disabled = true;
                document.getElementById("keterangann").innerHTML = "";
            } else {
                button_pinjam.disabled = false;
                document.getElementById("keterangann").innerHTML = "<b> Alasan</b>    : <br> ";
            }
-
        }
    </script>
 

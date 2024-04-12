@@ -56,21 +56,21 @@
                         <body class="justify-content-center">
                             {!!$layout_pengeluaran->info_nunggak!!}
                         </body>
-                        @elseif($cek_pengeluaran_pinjaman >= $data_anggaran_max_pinjaman->max_orang)
-
-                        <body class="justify-content-center">
-                            {!!$layout_pengeluaran->info_full!!}
-                        </body>
-                        @elseif($cek_total_pinjaman <= $data_anggaran_max_pinjaman->nominal_max_anggaran)
+                        @elseif($total_sisa_pinjaman <= $data_anggaran_max_pinjaman->max_orang)
 
                             <body class="justify-content-center">
-                                {!!$layout_pengeluaran->info_saldo!!}
+                                {!!$layout_pengeluaran->info_full!!}
                             </body>
-                            @else
-                            @include('backend.transaksi.pengajuan.form.form_pinjaman')
-                            @endif
+                            @elseif($cek_total_pinjaman <= $data_anggaran_max_pinjaman->nominal_max_anggaran)
 
-                            @endif
+                                <body class="justify-content-center">
+                                    {!!$layout_pengeluaran->info_saldo!!}
+                                </body>
+                                @else
+                                @include('backend.transaksi.pengajuan.form.form_pinjaman')
+                                @endif
+
+                                @endif
 
                     </div>
                     <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
@@ -89,7 +89,11 @@
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
 
                     <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-one-pinjaman-tab" data-toggle="pill" href="#custom-tabs-one-pinjaman" role="tab" aria-controls="custom-tabs-one-pinjaman" aria-selected="true">pinjaman"</a>
+                        <a class="nav-link active" id="custom-tabs-one-pinjaman-warga-tab" data-toggle="pill" href="#custom-tabs-one-pinjaman-warga" role="tab" aria-controls="custom-tabs-one-pinjaman-warga" aria-selected="true">pribadi</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-one-pinjaman-tab" data-toggle="pill" href="#custom-tabs-one-pinjaman" role="tab" aria-controls="custom-tabs-one-pinjaman" aria-selected="true">pinjaman</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link " id="custom-tabs-one-pengajuan-tab" data-toggle="pill" href="#custom-tabs-one-pengajuan" role="tab" aria-controls="custom-tabs-one-pengajuan" aria-selected="false">pengajuan</a>
@@ -100,8 +104,8 @@
             <div class="card-body">
                 <div class="tab-content" id="custom-tabs-one-tabContent">
 
-                    <div class="tab-pane fade show active" id="custom-tabs-one-pinjaman" role="tabpanel" aria-labelledby="custom-tabs-one-pinjaman-tab">
-                        <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <div class="tab-pane fade show active" id="custom-tabs-one-pinjaman-warga" role="tabpanel" aria-labelledby="custom-tabs-one-pinjaman-warga-tab">
+                        <table id="example2" class="table table-bordered table-striped table-responsive">
                             <thead>
                                 <tr class="bg-light">
                                     <th>No.</th>
@@ -114,6 +118,56 @@
                                 <?php
 
                                 use Illuminate\Support\Facades\DB;
+
+                                $no = 0;
+                                ?>
+                                @php
+                                $total = 0;
+                                @endphp
+                                @foreach($data_pengeluaran_pinjaman_warga->get() as $data)
+                                <?php $no++;
+                                $status2 = DB::table('pengeluarans')->find($data->id);
+                                ?>
+                                <tr>
+                                    <td>{{$no}}</td>
+                                    <td>
+                                        <a href="{{Route('form.bayar.pinjaman',Crypt::encrypt($data->id))}}" class="">
+                                            @if ( $status2->status == 'Lunas')
+                                            <i class="btn btn-success "> LUNAS </i>
+                                            @elseif ( $status2->status == 'Nunggak')
+                                            <i class=" btn btn-warning "> Bayar </i>
+                                            @endif
+                                            </i></a>
+                                    </td>
+                                    <td>{{$data->tanggal}}</td>
+                                    <td>{{ "Rp " . number_format($data->jumlah,2,',','.') }}</td>
+
+                                </tr>
+
+                                @php
+                                $total += $data->jumlah;
+                                @endphp
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <!-- /.table-body -->
+                    </div>
+
+
+                    <div class="tab-pane fade show" id="custom-tabs-one-pinjaman" role="tabpanel" aria-labelledby="custom-tabs-one-pinjaman-tab">
+                        <table id="example1" class="table table-bordered table-striped table-responsive">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>No.</th>
+                                    <th>Ket.</th>
+                                    <th>Tanggal</th>
+                                    <th>Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+
+
 
                                 $no = 0;
                                 ?>

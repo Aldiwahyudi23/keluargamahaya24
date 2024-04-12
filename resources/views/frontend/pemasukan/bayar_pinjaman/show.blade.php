@@ -19,6 +19,12 @@
                     <div class="card-body table-responsive">
                         <table id="example1" class="table table-bordered table-striped table-hover">
                             <tbody>
+                            <tr>
+                                    <td width="150px">ID Transaksi</td>
+                                    <td width="10px">:</td>
+                                    <td>{{ $data_bayar_pinjaman->kode}}</td>
+                                </tr>
+                                <tr>
                                 <tr>
                                     <td width="150px">Kategori</td>
                                     <td width="10px">:</td>
