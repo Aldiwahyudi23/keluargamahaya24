@@ -308,6 +308,7 @@
                                     @endif
                                     <input type="hidden" name="role_id" id="role_id" value="7">
                                     <input type="hidden" name="name" id="name" value="{{$data->nama}}">
+                                    <input type="hidden" name="no_hp" id="no_hp" value="{{$data->no_hp}}">
                                     <input type="hidden" name="data_warga_id" id="data_warga_id" value="{{$data->id}}">
 
                                     <button type="submit" class="btn btn-danger"> DAFTAR </button> <br>

@@ -1,6 +1,15 @@
 @extends('backend.template_backend.layout')
 
 @section('content')
+
+<?php
+use App\Models\DataWarga;
+
+$data_warga_pengaju = DataWarga::find($data_pengajuan->pengaju_id);
+
+$data_warga = DataWarga::find($data_pengajuan->data_warga_id);
+
+?>
 <!-- Hanya Akses Admin, bendahara, dan Sekertaris -->
 @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3)
 <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -45,6 +54,11 @@
                     <div class="card-body table-responsive">
                         <table id="example1" class="table table-bordered table-striped table-hover">
                             <tbody>
+                            <tr>
+                                    <td width="150px">ID Transaksi</td>
+                                    <td width="10px">:</td>
+                                    <td>{{ $data_pengajuan->kode }}</td>
+                                </tr>
                                 <tr>
                                     <td width="150px">Pengajuan</td>
                                     <td width="10px">:</td>
@@ -91,9 +105,10 @@
                             @endif
                         </div>
                         <hr>
+                        @if(Auth::user()->role->nama_role == 'Sekertaris' || Auth::user()->role->nama_role == 'Bendahara' || Auth::user()->role->nama_role == 'Admin')
                         <form action="{{Route('pinjaman.store')}}" method="post" enctype="multipart/form-data">
                             {{csrf_field()}}
-                            <button onclick="tombol()" id="myBtn" type="submit" class="btn btn-primary btn-sm"><i class="fas fa-send"></i> KONFIRMASI</button>
+                            <button onclick="tombol()" id="myBtn" type="submit" class="btn btn-primary btn-sm left-text" style="float: left;"><i class="fas fa-send"></i> SETUJUI</button>
                             <div id="tombol_proses"></div>
 
                             <input type="hidden" id="pengajuan_id" name="pengajuan_id" value="{{ $data_pengajuan->id }}">
@@ -108,6 +123,21 @@
                             <input type="hidden" id="pembayaran" name="pembayaran" value="{{ $data_pengajuan->pembayaran }}">
                             <input type="hidden" id="foto1" name="foto1" value="{{ $data_pengajuan->foto }}">
                         </form>
+                        
+                        @if($data_pengajuan->pengaju_id == $data_pengajuan->data_warga_id )
+                  <div class="right-text" style="float: right;"><a href="http://wa.me/62{{$data_warga->no_hp}}" class="btn btn-sm bg-teal">
+                                        <i class="fas fa-comments"> {{$data_warga->nama}}</i>
+                                    </a></div>
+                  @else
+                        <div class="right-text" style="float: right;"><a href="http://wa.me/62{{$data_warga_pengaju->no_hp}}" class="btn btn-sm bg-teal">
+                                        <i class="fas fa-comments"> {{$data_warga_pengaju->nama}}</i>
+                                    </a></div> <br>
+                                    <div class="right-text" style="float: right;"><a href="http://wa.me/62{{$data_warga->no_hp}}" class="btn btn-sm bg-teal">
+                                        <i class="fas fa-comments"> {{$data_warga->nama}}</i>
+                                    </a></div>
+                   @endif   
+                   @endif              
+                   
                     </div>
                 </div>
             </div>

@@ -13,4 +13,13 @@ class HubunganWarga extends Model
     {
         return $this->belongsTo(DataWarga::class);
     }
+    public function warga()
+    {
+        return $this->belongsTo(DataWarga::class, 'warga_id');
+    }
+
+    public function orangTua()
+    {
+        return $this->belongsTo(DataWarga::class, 'data_warga_id');
+    }
 }

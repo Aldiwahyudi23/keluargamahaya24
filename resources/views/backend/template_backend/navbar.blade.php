@@ -10,6 +10,8 @@
     use App\Models\ProfileApp;
     use App\Models\User;
     use Illuminate\Support\Facades\Auth;
+            use Illuminate\Support\Facades\DB;
+            use App\Models\Pengeluaran;
 
     $profile_app = ProfileApp::first();
     $warna_nav = LayoutAppUser::where('user_id', Auth::user()->id)->first();
@@ -23,9 +25,42 @@
 
     //untuk mengambil data pengajuan agar bisa muncul di notifikasi
     $pengajuan_total = Pengajuan::all()->count();
+    
+    if(Auth::user()->role->nama_role == 'Anggota'){
+    $pengajuan = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->get();
+    $pengajuan_total = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->count();
+    }
+    if(Auth::user()->role->nama_role == 'Keluarga'){
+    $pengajuan = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->get();
+    $pengajuan_total = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->count();
+    }
+    
+    if(Auth::user()->role->nama_role == 'Warga'){
+    $pengajuan = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->get();
+    $pengajuan_total = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->count();
+    }
+    if(Auth::user()->role->nama_role == 'Ketua'){
+    $pengajuan = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->orwhere('kategori_id',4)->get();
+    $pengajuan_total = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->orwhere('kategori_id',4)->count();
+    }
+    if(Auth::user()->role->nama_role == 'Penasehat'){
+    $pengajuan = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->orwhere('kategori_id',4)->get();
+    $pengajuan_total = Pengajuan::where('pengaju_id', Auth::user()->data_warga->id)->orwhere('kategori_id',4)->count();
+    }
+    
+    if(Auth::user()->role->nama_role == 'Sekertaris'){
     $pengajuan = Pengajuan::all();
-    // $pengajuan_pinjaman_total = Pengajuan::where('kategori', 'Pinjaman')->count();
-    // $pengajuan_pinjaman = Pengajuan::where('kategori', 'Pinjaman');
+    $pengajuan_total = Pengajuan::all()->count();
+    }
+    if(Auth::user()->role->nama_role == 'Bendahara'){
+    $pengajuan = Pengajuan::all();
+    $pengajuan_total = Pengajuan::all()->count();
+    }
+    if(Auth::user()->role->nama_role == 'Admin'){
+    $pengajuan = Pengajuan::all();
+    $pengajuan_total = Pengajuan::all()->count();
+    }
+    
 
     ?>
 
@@ -79,85 +114,48 @@
                  </form>
              </div>
          </li>
-         <!-- Messages Dropdown Menu -->
-         <li class="nav-item dropdown">
-             <a class="nav-link" data-toggle="dropdown" href="#">
-                 <i class="far fa-comments"></i>
-                 <span class="badge badge-danger navbar-badge">3</span>
-             </a>
-             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                 <a href="#" class="dropdown-item">
-                     <!-- Message Start -->
-                     <div class="media">
-                         <img src="dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                         <div class="media-body">
-                             <h3 class="dropdown-item-title">
-                                 Brad Diesel
-                                 <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                             </h3>
-                             <p class="text-sm">Call me whenever you can...</p>
-                             <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                         </div>
-                     </div>
-                     <!-- Message End -->
-                 </a>
-                 <div class="dropdown-divider"></div>
-                 <a href="#" class="dropdown-item">
-                     <!-- Message Start -->
-                     <div class="media">
-                         <img src="dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                         <div class="media-body">
-                             <h3 class="dropdown-item-title">
-                                 John Pierce
-                                 <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                             </h3>
-                             <p class="text-sm">I got your message bro</p>
-                             <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                         </div>
-                     </div>
-                     <!-- Message End -->
-                 </a>
-                 <div class="dropdown-divider"></div>
-                 <a href="#" class="dropdown-item">
-                     <!-- Message Start -->
-                     <div class="media">
-                         <img src="dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                         <div class="media-body">
-                             <h3 class="dropdown-item-title">
-                                 Nora Silvester
-                                 <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
-                             </h3>
-                             <p class="text-sm">The subject goes here</p>
-                             <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                         </div>
-                     </div>
-                     <!-- Message End -->
-                 </a>
-                 <div class="dropdown-divider"></div>
-                 <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-             </div>
-         </li>
+
          <!-- Notifications Dropdown Menu -->
          <li class="nav-item dropdown">
              <a class="nav-link" data-toggle="dropdown" href="#">
                  <i class="far fa-bell"></i>
+                 @if($pengajuan_total == 0)
+                 @else
                  <span class="badge badge-warning navbar-badge">{{$pengajuan_total}}</span>
+                 @endif
              </a>
              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                 <span class="dropdown-item dropdown-header">{{$pengajuan_total}} Notifications</span>
-                 <div class="dropdown-divider"></div>
-                 <a href="#" class="dropdown-item">
-                     <i class="fas fa-envelope mr-2"></i> 4 new messages
-                     <span class="float-right text-muted text-sm">3 mins</span>
-                 </a>
-                 <div class="dropdown-divider"></div>
-                 <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+             @if($pengajuan_total == 0)
+             <div class="dropdown-divider"></div>
+                 <a href="#" class="dropdown-item dropdown-footer">Tidak Ada Pengajuan</a>
+             @else
+                 @foreach($pengajuan as $data)
+                <a href="{{Route('pengajuan.show',Crypt::encrypt($data->id))}}" class="dropdown-item">
+                    <!-- Message Start -->
+                    <div class="media">
+                        <?php
+                        $fotoo = FotoUser::where('data_warga_id', $data->data_warga_id)->where('is_active', 1)->first();
+                        ?>
+                        <img src="{{ asset($fotoo->foto) }}" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                        <div class="media-body">
+                            <h3 class="dropdown-item-title">
+                                {{$data->data_warga->nama}}
+                                <span class="float-right text-sm text-danger">{{$data->status}}</i></span>
+                            </h3>
+                            <p class="text-sm">{{$data->kategori->nama_kategori}}</p> 
+                            <p>{{ "Rp " . number_format($data->jumlah,2,',','.') }} </p>
+                            <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> {{Carbon\Carbon::parse($data->created_at)->diffForHumans()}}</p>
+                        </div>
+                    </div>
+                    <!-- Message End -->
+                </a>
+                @endforeach
+              @endif
+                 
              </div>
          </li>
          <?php
 
-            use Illuminate\Support\Facades\DB;
-            use App\Models\Pengeluaran;
 
             $program_tabungan = AccessProgram::where('user_id', Auth::user()->id)->where('program_id', 2)->count();
 

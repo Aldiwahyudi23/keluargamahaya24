@@ -28,8 +28,14 @@
 
                     <div class="col-md-6">
                         <ul class="products-list product-list-in-card pl-1 pr-1">
-                            <b> <a href="" class="product-title">Saldo Kas</a>
-                                <h4>{{"Rp" . number_format(  $saldo_kas + $total_bayar_pinjaman_lebih-($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua) ,2,',','.')}}</h4>
+                            <b> <a href="javascript:void(0)" class="product-title">Saldo Kas</a>
+                                <h4>{{"Rp" . number_format(  $saldo_kas + $total_bayar_pinjaman_lebih + $total_bunga_neo + $total_bunga_tabungan -($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua) ,2,',','.')}}</h4>
+                                <span class="text-success" style="font-size: 10px">Saldo Kas = {{ "Rp " . number_format($saldo_kas -($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua),2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Total Lebih Pinjaman = {{ "Rp " . number_format($total_bayar_pinjaman_lebih,2,',','.') }}. </span><br>
+                                
+                                <span class="text-success" style="font-size: 10px">Bunga Neo Bank = {{ "Rp " . number_format($total_bunga_neo,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Bunga Tabungan = {{ "Rp " . number_format($total_bunga_tabungan,2,',','.') }}. </span>
+                                
                                 <p> Jumlah Total saldo anu aya di bendahara atawa sisa tina pengeluaran termasuk data pinjaman. </p>
                                 <hr />
                             </b>

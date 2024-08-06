@@ -11,6 +11,9 @@
             <?php
 
             use App\Models\User;
+            use Carbon\Carbon;
+            
+            $tanggal = Carbon::now();
             ?>
             <option value="">--Pilih Anggota--</option>
             @foreach($data_warga_program->get() as $data)
@@ -70,6 +73,7 @@
     </div>
     <hr>
     <input type="hidden" name="pengaju_id" id="pengaju_id" value="{{Auth::user()->data_warga_id}}">
+    <input type="hidden" name="tanggal" id="tanggal" value="{{$tanggal}}">
     <input type="hidden" name="cek_data" id="cek_data" value="admin">
     <button onclick="tombol_kas()" id="myBtn_kas" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Yuuu Bayar</button>
     <div id="tombol_proses"></div>
@@ -108,7 +112,7 @@
     jumlah_kas.addEventListener("change", stateHandle);
 
     function stateHandle() {
-        if (document.getElementById("jumlah").value <= 4999) {
+        if (document.getElementById("jumlah").value <= 99) {
             button_kas.disabled = true;
         } else {
             button_kas.disabled = false;

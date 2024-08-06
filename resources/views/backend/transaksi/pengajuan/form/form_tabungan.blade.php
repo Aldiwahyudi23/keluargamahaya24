@@ -5,7 +5,8 @@
 <div class="">
     <form id="basic-form" action="{{Route('pengajuan.store')}}" method="POST" enctype="multipart/form-data" novalidate>
         {{csrf_field()}}
-        <div class="form-group row">
+        
+        <div class="form-group">
             <label for="pembayaran">Metode Pembayaran</label>
             <select name="pembayaran" id="pembayaran" class="form-control select2bs4 @error('pembayaran') is-invalid @enderror" required>
 
@@ -32,30 +33,21 @@
 
         <div class="form-group">
             <label for="keterangan">Keterangan</label>
-            <textarea name="keterangan" class="textarea form-control bg-light @error('keterangan') is-invalid @enderror" id="summernote" rows="6" value="{{ old('keterangan') }}"></textarea>
+            <textarea name="keterangan" class="textarea form-control bg-light @error('keterangan') is-invalid @enderror" id="summernote1" rows="6" value="{{ old('keterangan') }}"></textarea>
             @error('keterangan')
             <div class="invalid-feedback">
                 <strong>{{ $message }}</strong>
             </div>
             @enderror
         </div>
-        <div class="form-group row">
-            <label for="kategori_id">Nabung / Narik</label>
-            <select name="kategori_id" id="kategori_id" class="form-control select2bs4 @error('kategori_id') is-invalid @enderror" required>
-
-                <option value="2">Nabung</option>
-                <option value="5">Tarik Tunai</option>
-            </select>
-            @error('kategori_id')
-            <div class="invalid-feedback">
-                <strong>{{ $message }}</strong>
-            </div>
-            @enderror
-        </div>
+        
         <input type="hidden" id="data_warga" name="data_warga" value="{{Auth::user()->data_warga_id}}">
         <input type="hidden" id="pengaju_id" name="pengaju_id" value="{{Auth::user()->data_warga_id}}">
+        <input type="hidden" id="kategori_id" name="kategori_id" value="2">
+        
+        
         <hr>
-        <button onclick="tombol()" id="myBtn" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> YUUU AJUKEUN</button>
+        <button onclick="tombol()" id="myBtn" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> YUUKK NABUNG</button>
         <div id="tombol_proses"></div>
     </form>
 </div>

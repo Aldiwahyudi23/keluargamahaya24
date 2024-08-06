@@ -129,7 +129,7 @@
                                 @enderror
                                 <hr>
                                 <input type="hidden" name="cek_data" id="cek_data" value="input_admin">
-                                <button onclick="tombol_kas()" id="myBtn_kas" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Yuuu Bayar</button>
+                                <button onclick="tombol_kas()" id="myBtn_kas(off)" type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Yuuu Bayar</button>
                                 <div id="tombol_proses"></div>
                             </div>
                         </div>

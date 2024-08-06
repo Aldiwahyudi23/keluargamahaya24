@@ -7,6 +7,8 @@ use App\Models\DataWarga;
 use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
 use App\Models\User;
+use App\Models\Pengajuan;
+use App\Models\Layout_Pemasukan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -76,7 +78,19 @@ class TabunganController extends Controller
         $data_warga = DataWarga::find(Auth::user()->data_warga_id);
         $data_tabungan_user = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', 2)->where('data_warga_id', $data_warga->id)->get();
         $data_pengeluaran_user = Pengeluaran::orderByRaw('created_at DESC')->where('anggaran_id', 7)->where('data_warga_id', $data_warga->id)->get();
+        
+        $cek_user = User::find(Auth::user()->user_id);
+   if(Auth::user()->user_id == false) {
+        $data_user = Auth::user()->data_warga_id;
+    } else {
+         $data_user = $cek_user->data_warga_id;
+    }
+    $cek_pengajuan_tabungan = Pengajuan::where('kategori_id', 2)->where('data_warga_id', $data_user)->count();
+    $cek_pengajuan_tarik = Pengajuan::where('kategori_id', 5)->where('data_warga_id', $data_user)->count();
 
-        return view('frontend.home.tabungan.index', compact('data_tabungan_user', 'data_pengeluaran_user', 'data_warga'));
+$layout_pemasukan = Layout_Pemasukan::first();
+
+
+        return view('frontend.home.tabungan.index', compact('data_tabungan_user', 'data_pengeluaran_user', 'data_warga','cek_pengajuan_tabungan','cek_pengajuan_tarik','layout_pemasukan'));
     }
 }

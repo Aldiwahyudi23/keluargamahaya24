@@ -112,7 +112,10 @@
                                 <?php $no++; ?>
                                 <tr>
                                     <td>{{$no}}</td>
-                                    <td>{{$data->kode}}</td>
+                                     <td><a href="{{route('pemasukan.show',Crypt::encrypt($data->id))}}" class="">
+                                     {{$data->kode}}
+                                     </a></td>
+                                    
                                     <td>{{$data->data_warga->nama}}</td>
                                     <td>{{ "Rp " . number_format($data->jumlah,2,',','.') }}</td>
                                     <td>{{date('M-y',strtotime($data->tanggal)) }}</td>

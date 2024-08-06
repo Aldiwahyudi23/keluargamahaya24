@@ -13,6 +13,7 @@ use App\Models\Pemasukan;
 use App\Models\Pengajuan;
 use App\Models\Pengeluaran;
 use App\Models\User;
+use App\Models\Saldo;
 use Database\Seeders\AccessSubMenuSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -101,6 +102,13 @@ class HomeController extends Controller
         // Uang nu teu acan di transfer
         $uang_blum_diTF = $total_pembayaran_cash - $total_setor_tunai +  $total_bayar_pinjaman_cash;
         // ===========================================================
+        // Perhitungan Tabungan
+        $total_bunga_neo = Pemasukan::where('kategori_id', 7)->sum('jumlah');
+        // Perhitungan Tabungan
+        $total_bunga_tabungan = Pemasukan::where('kategori_id', 8)->sum('jumlah');
+        
+        $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+
 
         return view('home', compact(
             'access_menu',
@@ -130,7 +138,11 @@ class HomeController extends Controller
             'saldo_bank',
             'uang_blum_diTF',
             'total_pengeluaran_kas_3',
-            'total_bayar_pinjaman_lebih'
+            'total_bayar_pinjaman_lebih',
+            'total_bunga_neo',
+            'saldo_akhir',
+            'total_bunga_tabungan'
+            
         ));
     }
     public function setting()

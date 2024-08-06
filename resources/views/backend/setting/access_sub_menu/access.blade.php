@@ -40,9 +40,9 @@
                                     <input type="hidden" name="sub_menu_id" id="sub_menu_id" value="{{$data->id}}">
                                     <input type="hidden" name="menu_id" id="menu_id" value="{{$data->menu_id}}">
                                     <input type="hidden" name="user_id" id="user_id" value="{{$data_user->id}}">
-                                    @if($cek_access->count() < '1' ) <button type="submit" class="btn btn-danger"> OFF</button>
+                                    @if($cek_access->count() < '1' ) <button id="submitBtn" type="submit" class="btn btn-danger"> OFF</button>
                                         @else
-                                        <button type="submit" class="btn btn-success"> ON</button>
+                                        <button  id="submitBtn" type="submit" class="btn btn-success"> ON</button>
                                         @endif
                                 </form>
                             </td>
@@ -59,4 +59,32 @@
         <!-- /.card -->
     </div>
 </div>
+@endsection
+@section('script')
+
+
+
+<script>
+
+$(document).ready(function() {
+    // Ketika tombol Submit ditekan
+    $('#submitBtn').click(function() {
+        // Kirim permintaan Ajax ke Controller
+        $.ajax({
+            url: '/access-sub-menu/store',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                // Tangani respons dari Controller
+                
+            },
+            error: function(xhr, status, error) {
+                // Tangani kesalahan jika ada
+                console.error(error);
+            }
+        });
+    });
+});
+</script>
+
 @endsection

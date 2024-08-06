@@ -12,6 +12,7 @@ use App\Models\Pengajuan;
 use App\Models\Pengeluaran;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Saldo;
 use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Request;
@@ -99,6 +100,41 @@ class BayarPinjamanController extends Controller
             $data_pemasukan->jumlah = $request->jumlah;
             $data_pemasukan->jumlah_lebih = 0;
         }
+        
+        //Untuk Mengambil Saldo keseluruhan
+        $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+        if($data_pemasukan->jumlah_lebih){
+        $saldo_kas = $data_pemasukan->jumlah;
+        }else{
+        $saldo_kas = $request->jumlah;
+        }
+    
+        $data_saldo = new Saldo();
+        $data_saldo->id_transaksi = $request->kode;
+        if($request->pembayaran == "Transfer"){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas + $request->jumlah ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar ;
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $saldo_kas ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman + $data_pemasukan->jumlah ;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman + $data_pemasukan->jumlah_lebih;
+           }
+           if($request->pembayaran == "Cash"){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar + $request->jumlah;
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $saldo_kas ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman + $data_pemasukan->jumlah;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman + $data_pemasukan->jumlah_lebih ;
+           }
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;   
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan ;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal ;   
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan;
+        
+        $data_saldo->save(); //save untuk input data saldo ke database saldos
+        //sampe die
 
         // Untuk notif Wa
         $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
@@ -160,7 +196,7 @@ Lebih : Rp.$RpLebih
 Mudah mudahan bermanfaat kanggo sadayana , tetep kedah kerjasama kanggo kalancaran program ieu, Nhun
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
             ),

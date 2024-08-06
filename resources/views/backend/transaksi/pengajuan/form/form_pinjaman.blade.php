@@ -12,7 +12,7 @@
                    @if (old('data_warga') == true)
                    <option value="{{old('data_warga')}}">{{old('nama')}}</option>
                    @endif
-                   <option value="{{Auth::user()->data_warga_id}}">-- Pilih Data Warga --</option>
+                   <option value="{{$data_user_hubungan}}">-- Pilih Data Warga --</option>
                    @foreach ($data_hubungan as $data)
                    <option value="{{$data->data_warga_id}}"> {{$data->data_warga->nama}}</option>
                    @endforeach

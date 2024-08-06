@@ -138,10 +138,10 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        @if ($data_pinjaman->data_Warga_id == Auth::user()->idata_warga_d)
+                        
                         @if ($cek_pengajuan == 0)
                         <center>
-                            <h5 class="text-bold card-header bg-light p-0"> BAYAR TABUNGAN</h5>
+                            <h5 class="text-bold card-header bg-light p-0"> BAYAR PINJAMAN</h5>
                         </center>
                         <form id="basic-form" action="{{Route('pengajuan.store')}}" method="POST" enctype="multipart/form-data" novalidate>
                             {{csrf_field()}}
@@ -196,7 +196,7 @@
                         </body>
                         @endif
                         @endif
-                        @endif
+                        
                     </div>
                 </div>
             </div>

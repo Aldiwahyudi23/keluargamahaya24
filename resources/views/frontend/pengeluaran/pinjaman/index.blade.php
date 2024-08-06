@@ -105,7 +105,7 @@
                 <div class="tab-content" id="custom-tabs-one-tabContent">
 
                     <div class="tab-pane fade show active" id="custom-tabs-one-pinjaman-warga" role="tabpanel" aria-labelledby="custom-tabs-one-pinjaman-warga-tab">
-                        <table id="example2" class="table table-bordered table-striped table-responsive">
+                        <table id="table1" class="table table-bordered table-striped table-responsive">
                             <thead>
                                 <tr class="bg-light">
                                     <th>No.</th>
@@ -155,7 +155,7 @@
 
 
                     <div class="tab-pane fade show" id="custom-tabs-one-pinjaman" role="tabpanel" aria-labelledby="custom-tabs-one-pinjaman-tab">
-                        <table id="example1" class="table table-bordered table-striped table-responsive">
+                        <table id="table2" class="table table-bordered table-striped table-responsive">
                             <thead>
                                 <tr class="bg-light">
                                     <th>No.</th>
@@ -203,7 +203,7 @@
                         <!-- /.table-body -->
                     </div>
                     <div class="tab-pane fade show" id="custom-tabs-one-pengajuan" role="tabpanel" aria-labelledby="custom-tabs-one-pengajuan-tab">
-                        <table id="example" class="table table-bordered table-striped table-responsive">
+                        <table id="table3" class="table table-bordered table-striped table-responsive">
                             <thead>
                                 <tr class="bg-light">
                                     <th>No.</th>

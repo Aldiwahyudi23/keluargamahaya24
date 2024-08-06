@@ -125,4 +125,22 @@ class UserController extends Controller
     {
         //
     }
+     public function hubungkan_akun(Request $request)
+    {
+
+        $data = User::find($request->id_hub);
+        if ($data->is_active == 1) {
+            if ($data->user_id == False) {
+                $data->user_id = $request->user_id;
+                $data->update();
+                return redirect()->back()->with('sukses', 'Akun atos terhubung, ayeuna akun pasangan atos tiasa data');
+            } else {
+                $data->user_id = 0;
+                $data->update();
+                return redirect()->back()->with('infoes', 'Ngahapus akses');
+            }
+        } else {
+            return redirect()->back()->with('kuning', 'Akun Tidak dapat di hubungkan, Status Akun Teu Aktif. teu tiasa di lanjut ');
+        }
+    }
 }

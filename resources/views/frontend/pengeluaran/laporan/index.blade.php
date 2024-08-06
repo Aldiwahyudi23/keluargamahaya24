@@ -24,6 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link " id="custom-tabs-one-pinjam-tab" data-toggle="pill" href="#custom-tabs-one-pinjam" role="tab" aria-controls="custom-tabs-one-pinjam" aria-selected="false">Pinjaman</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link " id="custom-tabs-one-file-tab" data-toggle="pill" href="#custom-tabs-one-file" role="tab" aria-controls="custom-tabs-one-file" aria-selected="false">File Laporan Tahunan</a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -36,32 +39,38 @@
                     <!-- /.table-body -->
                 </div>
                 <div class="tab-pane fade show" id="custom-tabs-one-lain" role="tabpanel" aria-labelledby="custom-tabs-one-lain-tab">
-                    <table id="table1" class="table table-bordered table-striped table-responsive">
+                    <table id="table2" class="table table-bordered table-striped table-responsive">
                         @include('backend.transaksi.pengeluaran.laporan.table.dana_lain')
                     </table>
                     <!-- /.table-body -->
                 </div>
                 <div class="tab-pane fade show" id="custom-tabs-one-darurat" role="tabpanel" aria-labelledby="custom-tabs-one-darurat-tab">
-                    <table id="table2" class="table table-bordered table-striped table-responsive">
+                    <table id="table3" class="table table-bordered table-striped table-responsive">
                         @include('backend.transaksi.pengeluaran.laporan.table.dana_darurat')
                     </table>
                     <!-- /.table-body -->
                 </div>
                 <div class="tab-pane fade show" id="custom-tabs-one-usaha" role="tabpanel" aria-labelledby="custom-tabs-one-usaha-tab">
-                    <table id="table3" class="table table-bordered table-striped table-responsive">
+                    <table id="table4" class="table table-bordered table-striped table-responsive">
                         @include('backend.transaksi.pengeluaran.laporan.table.dana_usaha')
                     </table>
                     <!-- /.table-body -->
                 </div>
                 <div class="tab-pane fade show" id="custom-tabs-one-amal" role="tabpanel" aria-labelledby="custom-tabs-one-amal-tab">
-                    <table id="table4" class="table table-bordered table-striped table-responsive">
+                    <table id="table5" class="table table-bordered table-striped table-responsive">
                         @include('backend.transaksi.pengeluaran.laporan.table.dana_amal')
                     </table>
                     <!-- /.table-body -->
                 </div>
                 <div class="tab-pane fade show" id="custom-tabs-one-pinjam" role="tabpanel" aria-labelledby="custom-tabs-one-pinjam-tab">
-                    <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <table id="table6" class="table table-bordered table-striped table-responsive">
                         @include('backend.transaksi.pengeluaran.laporan.table.data_pinjaman_umum')
+                    </table>
+                    <!-- /.table-body -->
+                </div>
+                <div class="tab-pane fade show" id="custom-tabs-one-file" role="tabpanel" aria-labelledby="custom-tabs-one-file-tab">
+                    <table id="table7" class="table table-bordered table-striped table-responsive">
+                        @include('backend.transaksi.pengeluaran.laporan.table.data_file_laporan_tahunan')
                     </table>
                     <!-- /.table-body -->
                 </div>

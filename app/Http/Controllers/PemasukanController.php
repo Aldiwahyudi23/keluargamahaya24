@@ -15,6 +15,8 @@ use App\Models\Pengajuan;
 use App\Models\Program;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Saldo;
+use App\Models\BayarPinjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -50,17 +52,40 @@ class PemasukanController extends Controller
             'data_warga' => 'required',
             'kategori_id' => 'required',
             'pembayaran' => 'required',
-            'jumlah' => 'required|numeric',
-            'keterangan' => 'required',
+            
         ], [
             'data_warga.required' => 'data_warga kedah di pilih',
             'kategori_id.required' => 'Kategori kedah di pilih',
             'pembayaran.required' => 'Pembayaran kedah di pilih',
-            'jumlah.required' => 'Nominal kedah di isi',
-            'jumlah.numeric' => 'Nominal teu kengeng kangge titik',
-            'keterangan.required' => 'keterangan kedah di isi',
+            
         ]);
 
+        if($request->kategori_id == 3){
+        
+           if($request->kas){
+           $req_kas = $request->kas;
+           }else {
+           $req_kas = 0;
+           }
+           if($request->bayar_pinjaman){
+           $Bpinjaman = $request->bayar_pinjaman;
+           }else{
+           $Bpinjaman = 0;
+           }
+           
+           //jika ada request dari tabungan
+           if($request->tabungan){
+           $tabungan = $request->tabungan;
+           }else{
+           $tabungan = 0;
+           }
+         //menjumlahkan dari request an kas dan bayar 
+        $request->jumlah = $req_kas + $Bpinjaman + $tabungan ;//request jumlah dari setor tunai karena berbeda nama pariabel
+        $request->keterangan = $request->ket . "<br>" . "Uang Kas  :" . $request->kas . "<br>". "Uang Bayar Pinjaman   :". $request->bayar_pinjaman . "<br>". " Uang Tabungan   :" . $request->tabungan ;
+        
+        
+        
+        }
         if ($request->foto) {
             $file = $request->file('foto');
             $nama = 'bukti-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
@@ -99,6 +124,130 @@ class PemasukanController extends Controller
             $data_pemasukan->pengurus_id = Auth::user()->data_warga_id;
             $data_pemasukan->kode = $request->kode; //jika kode ini di ambil dari pengajuan maka ngambil dari sini
         }
+        
+        //Untuk mengambil data Saldo dari setiap pembayaran
+    $kas = $request->jumlah / 2;
+    $darurat = $kas * 45/100;
+    $pinjam = $kas * 45/100;
+    $amal = $kas * 10/100;
+    $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+    $saldo_kas_akhir = $saldo_akhir->total_kas + $saldo_akhir->bunga_neo + $saldo_akhir->bunga_tabungan + $saldo_akhir->jumlah_lebih_pinjaman;
+    
+        $data_saldo = new Saldo();
+        $data_saldo->id_transaksi = $data_pemasukan->kode  ;
+        //Jika pengajuan Kas
+        if($request->kategori_id == 1){
+           if($request->pembayaran == "Transfer"){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas + $request->jumlah ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar ;
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $request->jumlah ;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas + $kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat + $darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal + $amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman + $pinjam ;
+           }
+           if($request->pembayaran == "Cash"){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar + $request->jumlah;
+        $data_saldo->total_kas = $saldo_akhir->total_kas ;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas + $kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat + $darurat;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal + $amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman + $pinjam;
+           }
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;   
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan ;   
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman ;
+        }
+        
+        //Jika pengajuan Tabungan
+        if($request->kategori_id == 2){
+           if($request->pembayaran == "Transfer"){
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan + $request->jumlah ;   
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar ;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan + $request->jumlah ;
+           }
+           if($request->pembayaran == "Cash"){
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;   
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar + $request->jumlah;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan + $request->jumlah;
+           }
+        $data_saldo->total_kas = $saldo_akhir->total_kas ;
+        $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas  ; 
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman;
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        }
+        
+        //Jika Setor tunai
+        
+        if($request->kategori_id == 3){
+        
+           
+         //menjumlahkan dari request an kas dan bayar Pinjaman
+           $hasil_kas = $req_kas + $Bpinjaman;
+           $total_jumlah = $hasil_kas + $tabungan; //untuk menjumlahkan penjumlahan keseluruhan yang di input
+           
+           //jika ad a request dari kas dan bayar pinjaman
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas + $hasil_kas ;
+           $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan + $tabungan;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar - $request->jumlah;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan;
+        if($request->kas){
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $request->kas ;
+        }else {
+        $data_saldo->total_kas = $saldo_akhir->total_kas ;
+        }
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman ;
+        
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        }
+        
+        //Jika Pengajuan untuk menambahkan Bunga Neo
+        if($request->kategori_id == 7){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas + $request->jumlah ;
+           $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar;
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $request->jumlah;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman ;
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo + $request->jumlah;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        }
+        
+        //Jika pengajuan untuk menambahkan Bunga Tabungan
+        if($request->kategori_id == 8){
+           $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas + $request->jumlah ;
+           $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar;
+        $data_saldo->total_kas = $saldo_akhir->total_kas + $request->jumlah;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman ;
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan + $request->jumlah;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        }
+        
+        $data_saldo->save();
+        //sampe diee
 
         // Untuk notif Wa
         $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
@@ -151,7 +300,7 @@ STATUS : SUKSES
 Hatur Nuhun sagede badag atos pasrtisipasi kana program ieu,  kuyyy Ahhhh semangatttt semoga bisa
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
             ),
@@ -300,23 +449,12 @@ http://keluargamahaya.online
         $data_kategori = KategoriAnggaranProgram::all();
         //Untuk menyingkronkan data pasanhan
         $user = DataWarga::find(Auth::user()->data_warga_id);
-        if ($user->jenis_kelamin = "Laki-Laki") {
-            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
-            if ($cek_hubungan->count() == 1) {
-                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-                $data_user = $cek_user->data_warga_id;
-            } else {
-                $data_user = Auth::user()->data_warga_id;
-            }
-        } else {
-            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
-            if ($cek_hubungan->count() == 1) {
-                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-                $data_user = $cek_user->data_warga_id;
-            } else {
-                $data_user = Auth::user()->data_warga_id;
-            }
-        }
+    $cek_user = User::find(Auth::user()->user_id);
+   if(Auth::user()->user_id == false) {
+        $data_user = Auth::user()->data_warga_id;
+    } else {
+         $data_user = $cek_user->data_warga_id;
+    }
         //
         $data_pemasukan_kas_user = Pemasukan::orderByRaw('created_at DESC')->where('data_warga_id', $data_user)->where('kategori_id', 1)->get();
         $data_pemasukan_semua = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', '1')->get();
@@ -365,5 +503,24 @@ http://keluargamahaya.online
         $user = User::find($id);
         $data_pemasukan_kas_user = Pemasukan::where('kategori_id', 2)->where('data_warga_id', $user->data_warga_id)->orderByRaw('created_at DESC')->get();
         return view('frontend.pemasukan.show_anggota', compact('data_pemasukan_kas_user', 'user'));
+    }
+    Public function index_setor_tunai ()
+    {
+    // Perhitungan uang yang masuk lewat Transfer
+        $total_pembayaran_tf = Pemasukan::where('pembayaran', 'Transfer')->sum('jumlah');
+        // Perhitungan uang yang masuk lewat cash
+        $total_pembayaran_cash = Pemasukan::where('pembayaran', 'Cash')->sum('jumlah');
+        // menghitung jumlah setor tunai
+        $total_setor_tunai = Pemasukan::where('kategori_id', '3')->sum('jumlah');
+        
+        $total_bayar_pinjaman_cash = BayarPinjaman::where('pembayaran', 'Cash')->sum('jumlah');
+        
+        // Uang nu teu acan di transfer
+        $uang_blum_diTF = $total_pembayaran_cash - $total_setor_tunai +  $total_bayar_pinjaman_cash;
+        
+        $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+        
+    
+    return view('frontend.pemasukan.setor_tunai',compact('uang_blum_diTF','saldo_akhir'));
     }
 }

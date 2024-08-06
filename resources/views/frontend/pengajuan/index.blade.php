@@ -35,7 +35,7 @@
                             <td>{{ $data->jumlah }}</td>
                             <td>
                                 @if($data->kategori_id == 2)
-                                <a href="{{Route('pengajuan.laporan',Crypt::encrypt($data->id))}}" class=""><i class="nav-icon fas fa-id-card">Laporkan</i></a>
+                                <a href="{{Route('pengajuan.show',Crypt::encrypt($data->id))}}" class=""><i class="nav-icon fas fa-id-card">Laporkan</i></a>
                                 @else
                                 <a href="{{Route('pengajuan.show',Crypt::encrypt($data->id))}}" class=""><i class="nav-icon fas fa-id-card">Lihat</i></a>
                                 @endif

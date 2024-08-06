@@ -6,15 +6,18 @@ use App\Models\Pengeluaran;
 use App\Http\Controllers\Controller;
 use App\Notifications\EmailNotification;
 use App\Models\AccessProgram;
+
 use App\Models\Anggaran;
 use App\Models\BayarPinjaman;
 use App\Models\DataWarga;
+use App\Models\FileLaporan;
 use App\Models\HubunganWarga;
 use App\Models\KategoriAnggaranProgram;
 use App\Models\LayoutPengeluaran;
 use App\Models\Pemasukan;
 use App\Models\Pengajuan;
 use App\Models\Role;
+use App\Models\Saldo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -90,13 +93,68 @@ class PengeluaranController extends Controller
         if ($request->cek_data == "admin") {
             $data_pengeluaran->pengurus_id = Auth::user()->data_warga_id;
             $data_pengeluaran->kode = $data_anggaran->kode . date('dmyhis');
+            $kode =  $data_anggaran->kode . date('dmyhis');
         } elseif ($request->cek_data == "input_admin") {
             $data_pengeluaran->pengurus_id = $request->pengurus_id;
             $data_pengeluaran->kode =  $data_anggaran->kode . date('dmyhis', strtotime($request->tanggal));
+            $kode =  $data_anggaran->kode . date('dmyhis', strtotime($request->tanggal));
         } else {
             $data_pengeluaran->pengurus_id = Auth::user()->data_warga_id;
             $data_pengeluaran->kode =  $data_anggaran->kode . date('dmyhis', strtotime($request->tanggal)); //jika kode ini di ambil dari pengajuan maka ngambil dari sini
+            $kode =  $data_anggaran->kode . date('dmyhis', strtotime($request->tanggal));
         }
+        
+        //untuk pengeluaran
+        $id_anggaran = Anggaran::find($request->anggaran_iqd);
+        if($request->anggaran_id = 1){
+           $darurat =  $request->jumlah ;
+        }else{
+           $darurat = 0; 
+        }
+        if($request->anggaran_id = 2){
+           $amal =  $request->jumlah ;
+        }else{
+           $amal = 0; 
+        }
+
+        if($request->anggaran_id = 7){
+           $tabungan =  $request->jumlah ;
+        }else{
+           $tabungan = 0; 
+        }
+        
+        $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+        
+      if($saldo_akhir->saldo_kas > $request->jumlah){ 
+        if ($request->anggaran_id == 4 || $request->anggaran_id == 5 || $request->anggaran_id == 6) {
+          $kas = $request->jumlah;
+        } else {
+          $kas = 0;
+        }
+       }else{
+        return redirect()->back()->with('kuning','Saldo kas tidak cukup');
+       }
+
+        
+        $data_saldo = new Saldo();
+        $data_saldo->id_transaksi = $saldo_akhir->id_transaksi ;
+        $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas - $kas - $darurat - $amal ;
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan - $tabungan ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar;
+        $data_saldo->total_kas = $saldo_akhir->total_kas -  $kas - $darurat - $amal;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan - $tabungan;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat - $darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal - $amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman;
+        
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas - $kas ;
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan ;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        
+        
+        $data_saldo->save();
+        
         // Untuk notif Wa
         $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
         $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
@@ -114,10 +172,17 @@ class PengeluaranController extends Controller
 
         $token = "@Mx6RkRVz60S#j8YGi6T";
 
-        $target = "$bendahara->data_warga->no_hp, $penasehat->data_warga->no_hp, $DataWarga->no_hp";
+        
         $nominal = number_format($request->jumlah, 2, ',', '.');
         $pengurus = Auth::User()->data_warga->nama;
-        $anggarann = Anggaran::find($request->anggaran_id);
+        
+        $access_program_kas = AccessProgram::where('program_id', 1)->get();
+        $target =[];
+Foreach ($access_program_kas as $data) {
+$data_warga = User::find($data->user_id);
+        $target[] = $data_warga->data_warga->no_hp;
+        }
+$coba1 = implode(", ", $target);
 
         $curl = curl_init();
 
@@ -131,21 +196,21 @@ class PengeluaranController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array(
-                'target' => $target,
+                'target' => $coba1,
                 'message' => "Pesan Otomatis   
 
 Alhamdulilah
 Penginputan PENGELUARAN atos di input ku $pengurus dengan data sesuai di Handap
 
-ID : $request->kode
+ID : $kode
 Tanggal : $request->tanggal
-Kategori : $anggarann->nama_anggaran
+Kategori : $data_anggaran->nama_anggaran
 Nominal : Rp.$nominal
 
-Pengeluaran atos di input, Nuhun
+Pengeluaran atos di input, Mangga di cek supados jelas. Nuhun
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
             ),
@@ -161,13 +226,14 @@ http://keluargamahaya.online
         //sampe die
         // Kanggo send notifikasi
         $all = User::all();
-        $anggaran = Anggaran::find($request->anggaran_id);
+        
+        
 
         $project = [
-            'greeting' => 'Bissmillah',
+            'greeting' => 'Ralat, Update Info yang Tadi',
             'body' => 'Ngalaporkeun Pengeluaran KAS seseuai DATA di Handap anu di Input ku ' . Auth::user()->name . ' Mangga cek deui, kedah selalu ngecek kana data',
-            'nama' => 'Di Input ku ' . Auth::user()->name . '/' . $request->kode,
-            'kategori' => $anggaran->nama_anggaran,
+            'nama' => 'Di Input ku ' . Auth::user()->name . '/' . $kode,
+            'kategori' => $data_anggaran->nama_anggaran,
             'pembayaran' => 'Jumlah Nu di Kaluarkeun',
             'jumlah' => 'Rp ' . number_format($request->jumlah, 2, ',', '.'),
             'tanggal' => $request->tanggal,
@@ -179,7 +245,7 @@ http://keluargamahaya.online
 
         Notification::sendnow($all, new EmailNotification($project));
 
-        $data_pengeluaran->save();
+       // $data_pengeluaran->save();
 
         // jika ada pengajuan ID hapus
         if ($request->pengajuan_id) {
@@ -302,25 +368,15 @@ http://keluargamahaya.online
     public function pengeluaran_index()
     {
 
+
         //Untuk menyingkronkan data pasanhan
-        $user = DataWarga::find(Auth::user()->data_warga_id);
-        if ($user->jenis_kelamin = "Laki-Laki") {
-            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
-            if ($cek_hubungan->count() == 1) {
-                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-                $data_user_hubungan = $cek_user->data_warga_id;
-            } else {
-                $data_user_hubungan = Auth::user()->data_warga_id;
-            }
+        $cek_user = User::find(Auth::user()->user_id);
+        if (Auth::user()->user_id == false) {
+            $data_user_hubungan = Auth::user()->data_warga_id;
         } else {
-            $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
-            if ($cek_hubungan->count() == 1) {
-                $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-                $data_user_hubungan = $cek_user->data_warga_id;
-            } else {
-                $data_user_hubungan = Auth::user()->data_warga_id;
-            }
+            $data_user_hubungan = $cek_user->data_warga_id;
         }
+        //
         // untuk mengecek saldo pinjaman
         // untuk info saldo
         // data Pemasukan
@@ -434,7 +490,8 @@ http://keluargamahaya.online
             'total_pengeluaran_kas_3',
             'total_bayar_pinjaman_lebih',
             'jatah',
-            'total_sisa_pinjaman'
+            'total_sisa_pinjaman',
+            'data_user_hubungan'
         ));
     }
 
@@ -447,8 +504,9 @@ http://keluargamahaya.online
         $dana_acara = Pengeluaran::orderByRaw('created_at DESC')->where('anggaran_id', 5)->get();
         $dana_lain = Pengeluaran::orderByRaw('created_at DESC')->where('anggaran_id', 6)->get();
         $data_pemasukan = Pemasukan::orderByRaw('created_at DESC')->where('kategori_id', 1)->get();
+        $data_file_laporan = FileLaporan::all();
 
-        return view('frontend.pengeluaran.laporan.index', compact('dana_darurat', 'dana_amal', 'dana_pinjam', 'dana_usaha', 'dana_acara', 'dana_lain', 'data_pemasukan'));
+        return view('frontend.pengeluaran.laporan.index', compact('dana_darurat', 'dana_amal', 'dana_pinjam', 'dana_usaha', 'dana_acara', 'dana_lain', 'data_pemasukan', 'data_file_laporan'));
     }
 
     public function detail_pengeluaran($id)
@@ -515,6 +573,25 @@ http://keluargamahaya.online
         $data_pengeluaran->pengurus_id = Auth::user()->data_warga_id;
         $data_pengeluaran->kode = $request->kode;
 
+       //untuk pinjaman
+       $saldo_akhir = Saldo::latest()->first(); //mengambil data yang terbaru
+       $data_saldo = new Saldo();
+       $data_saldo->id_transaksi = $request->kode  ;
+        $data_saldo->saldo_atm_kas = $saldo_akhir->saldo_atm_kas - $request->jumlah ;
+        $data_saldo->saldo_atm_tabungan = $saldo_akhir->saldo_atm_tabungan ;
+        $data_saldo->total_diluar = $saldo_akhir->total_diluar;
+        $data_saldo->total_kas = $saldo_akhir->total_kas -  $request->jumlah;
+        $data_saldo->total_tabungan = $saldo_akhir->total_tabungan;
+        $data_saldo->saldo_kas = $saldo_akhir->saldo_kas ;
+        $data_saldo->saldo_darurat = $saldo_akhir->saldo_darurat ;
+        $data_saldo->saldo_amal = $saldo_akhir->saldo_amal ;
+        $data_saldo->saldo_pinjaman = $saldo_akhir->saldo_pinjaman -  $request->jumlah;
+        $data_saldo->bunga_neo = $saldo_akhir->bunga_neo;
+        $data_saldo->bunga_tabungan = $saldo_akhir->bunga_tabungan ;
+        $data_saldo->jumlah_lebih_pinjaman = $saldo_akhir->jumlah_lebih_pinjaman;
+        
+        $data_saldo->save();
+
 
         // Untuk notif Wa
         $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
@@ -566,7 +643,7 @@ Status : Proses
 Pinjaman atos di setujui kantun ngambil artosna, Nuhun
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
             ),

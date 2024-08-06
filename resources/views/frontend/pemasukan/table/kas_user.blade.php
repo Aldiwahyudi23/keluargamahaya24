@@ -36,10 +36,10 @@
                  @csrf
                  @method('delete')
                  <a href="{{route('pemasukan.show',Crypt::encrypt($data->id))}}" class=""><i class="nav-icon fas fa-book"></i></a>
-                 @if (auth()->user()->role == 'Admin' || auth()->user()->role == 'Sekertaris')
+                 @if (auth()->user()->role->nama_role == 'Admin' || auth()->user()->role->nama_role == 'Sekertaris')
                  <a href="{{route('pemasukan.edit',Crypt::encrypt($data->id))}}" class=""><i class="nav-icon fas fa-pencil-alt"></i></a>
                  @endif
-                 @if (auth()->user()->role == 'Admin')
+                 @if (auth()->user()->role->nama_role == 'Admin')
                  <button class="btn btn-link btn-sm mt-2"><i class="nav-icon fas fa-trash-alt" onclick="return confirm('Leres bade ngahapus data anu namina   ?')"></i> </button>
                  @endif
              </form>

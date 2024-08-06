@@ -16,30 +16,14 @@
 
     $user = DataWarga::find(Auth::user()->data_warga_id);
     $foto = FotoUser::where('data_warga_id', $user->id)->where('is_active', 1)->first();
-    if ($user->jenis_kelamin = "Laki-Laki") {
-        $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
-        if ($cek_hubungan->count() == 1) {
-            $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-            $data_user = $cek_user->id;
-        } else {
-            $data_user = Auth::user()->id;
-        }
+
+   if(Auth::user()->user_id == false) {
+       $data_user = Auth::user()->id;
     } else {
-        $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
-        if ($cek_hubungan->count() == 1) {
-            $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-            $data_user = $cek_user->id;
-        } else {
-            $data_user = Auth::user()->id;
-        }
+        $data_user = Auth::user()->user_id;
     }
+ 
     ?>
-
- <aside class="control-sidebar control-sidebar-dark">
-     <!-- Control sidebar content goes here -->
- </aside>
- <!-- /.control-sidebar -->
-
  <!-- Main Footer -->
  <footer class=" navbar-light navbar-expand d-md-none d-lg-none d-xl-none" style="background-color: {{$warna_menu->menu}};" id="headera">
      <ul class="navbar-nav nav-justified nav nav-treeview nav-pills" data-widget="treeview" role="menu" data-accordion="false">
@@ -81,6 +65,7 @@
  <!-- ./wrapper -->
 
  <!-- REQUIRED SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
  <!-- jQuery -->
  <script src="{{asset('layouts/plugins/jquery/jquery.min.js')}}"></script>
  <!-- Bootstrap -->
@@ -122,7 +107,64 @@
  <script src="{{asset('layouts/plugins/bootstrap-switch/js/bootstrap-switch.min.js')}}"></script>
  @yield('script')
  <!-- Page specific script -->
- <script>
+ 
+ <!-- resources/views/your_page.blade.php -->
+ 
+ 
+ <!-- Validasi jumlah  ============================================-->
+    <?php
+
+
+    use App\Models\Pengajuan;
+
+    $jumlah_data_pengajuan = Pengajuan::all()->count();
+    ?>
+    @if (Auth::user()->role->nama_role == 'Bendahara' || Auth::user()->role->nama_role == 'Sekertaris' )
+    @if ($jumlah_data_pengajuan >= 1 )
+    <script>
+// Fungsi untuk menampilkan notifikasi dengan gambar
+function tampilkanNotifikasiDenganGambar(gambarSrc, durasi) {
+    var notifikasi = document.createElement('div');
+    notifikasi.style.position = "fixed";
+    notifikasi.style.top = "50%";
+    notifikasi.style.left = "50%";
+    notifikasi.style.transform = "translate(-50%, -50%)";
+    notifikasi.style.background = "#ffffff";
+    notifikasi.style.padding = "20px";
+    notifikasi.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+    notifikasi.style.zIndex = "9999";
+    notifikasi.style.fontSize = " 24px";
+    notifikasi.style.textAlign = "center";
+    
+    // Tambahkan gambar ke dalam notifikasi
+    var gambar = document.createElement('img');
+    gambar.src = gambarSrc;
+    gambar.style.width = "300px"; // Sesuaikan ukuran gambar
+    gambar.style.height = "auto";
+    notifikasi.appendChild(gambar);
+    
+    // Tambahkan teks ke dalam notifikasi
+    var teks = document.createElement('p');
+    teks.innerHTML = "Aa Rifki aya pengajuan nu perlu dikonfirmasi! <hr> Cusss klik gambar lonceng di luhur";
+    notifikasi.appendChild(teks);
+    
+    // Notifikasi akan hilang setelah durasi yang ditentukan
+    setTimeout(function() {
+        notifikasi.remove();
+    }, durasi); 
+    
+    document.body.appendChild(notifikasi);
+}
+
+// Panggil fungsi tampilkanNotifikasiDenganGambar dengan URL gambar dan durasi
+tampilkanNotifikasiDenganGambar('/img/notif/1.jpg', 5000); // Ganti dengan URL gambar yang sesuai
+</script>
+@endif
+    @endif
+ 
+ 
+ 
+<script>
      $(function() {
          $("#example1").DataTable({
              "responsive": true,
@@ -160,6 +202,36 @@
              "autoWidth": false,
              "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
          }).buttons().container().appendTo('#table5_wrapper .col-md-6:eq(0)');
+         $("#table6").DataTable({
+             "responsive": true,
+             "lengthChange": true,
+             "autoWidth": false,
+             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+         }).buttons().container().appendTo('#table6_wrapper .col-md-6:eq(0)');
+         $("#table7").DataTable({
+             "responsive": true,
+             "lengthChange": true,
+             "autoWidth": false,
+             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+         }).buttons().container().appendTo('#table7_wrapper .col-md-6:eq(0)');
+         $("#table8").DataTable({
+             "responsive": true,
+             "lengthChange": true,
+             "autoWidth": false,
+             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+         }).buttons().container().appendTo('#table8_wrapper .col-md-6:eq(0)');
+         $("#table9").DataTable({
+             "responsive": true,
+             "lengthChange": true,
+             "autoWidth": false,
+             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+         }).buttons().container().appendTo('#table9_wrapper .col-md-6:eq(0)');
+         $("#table10").DataTable({
+             "responsive": true,
+             "lengthChange": true,
+             "autoWidth": false,
+             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+         }).buttons().container().appendTo('#table10_wrapper .col-md-6:eq(0)');
 
      });
  </script>
@@ -721,6 +793,46 @@
          $('.select4bs4').select2({
              theme: 'bootstrap4'
          })
+         //Initialize Select2 Elements
+         $('.select5').select2()
+
+         //Initialize Select2 Elements
+         $('.select5bs5').select2({
+             theme: 'bootstrap4'
+         })
+         //Initialize Select2 Elements
+         $('.select6').select2()
+
+         //Initialize Select2 Elements
+         $('.select6bs6').select2({
+             theme: 'bootstrap4'
+         })
+         //Initialize Select2 Elements
+         $('.select7').select2()
+
+         //Initialize Select2 Elements
+         $('.select7bs7').select2({
+             theme: 'bootstrap4'
+         })
+         //Initialize Select2 Elements
+         $('.select8').select2()
+
+         //Initialize Select2 Elements
+         $('.select8bs8').select2({
+             theme: 'bootstrap4'
+         })
+         $('.select9').select2()
+
+         //Initialize Select2 Elements
+         $('.select9bs9').select2({
+             theme: 'bootstrap4'
+         })
+         $('.select10').select2()
+
+         //Initialize Select2 Elements
+         $('.select10bs10').select2({
+             theme: 'bootstrap4'
+         })
          // Summernote
          $('#summernote').summernote()
 
@@ -775,6 +887,56 @@
      $(function() {
          // Summernote
          $('#summernote5').summernote()
+
+         // CodeMirror
+         CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+             mode: "htmlmixed",
+             theme: "monokai"
+         });
+     })
+     $(function() {
+         // Summernote
+         $('#summernote6').summernote()
+
+         // CodeMirror
+         CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+             mode: "htmlmixed",
+             theme: "monokai"
+         });
+     })
+     $(function() {
+         // Summernote
+         $('#summernote7').summernote()
+
+         // CodeMirror
+         CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+             mode: "htmlmixed",
+             theme: "monokai"
+         });
+     })
+     $(function() {
+         // Summernote
+         $('#summernote8').summernote()
+
+         // CodeMirror
+         CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+             mode: "htmlmixed",
+             theme: "monokai"
+         });
+     })
+     $(function() {
+         // Summernote
+         $('#summernote9').summernote()
+
+         // CodeMirror
+         CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+             mode: "htmlmixed",
+             theme: "monokai"
+         });
+     })
+     $(function() {
+         // Summernote
+         $('#summernote10').summernote()
 
          // CodeMirror
          CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {

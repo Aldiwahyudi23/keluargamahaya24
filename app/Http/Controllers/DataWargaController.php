@@ -298,7 +298,7 @@ class DataWargaController extends Controller
             ],
             [
                 'nama.required' => 'Nama Kedah di isin',
-                'no_hp.required' => 'Punten No HP kedah anu leres kedah nu aktif',
+                'no_hp.required' => 'Punten No HP kedah di isi',
                 'no_hp.numeric' => 'Punten No HP kedah angka hungkul',
                 'no_hp.digits_between' => 'Punten No HP kedah anu leres, anu aktif di WA',
                 'email.required' => 'email Kedah di isin',
@@ -325,7 +325,7 @@ class DataWargaController extends Controller
         $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
 
         $token = "@Mx6RkRVz60S#j8YGi6T";
-        $target = "$ketua->data_warga->no_hp, $sekertaris->data_warga->no_hp, $request->no_hp";
+        $target = " $sekertaris->data_warga->no_hp, $request->no_hp";
 
         $curl = curl_init();
 

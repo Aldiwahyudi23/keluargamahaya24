@@ -26,7 +26,7 @@
      <!-- /.card -->
  </div>
  <div class="alert alert-info alert-dismissible fade show col-12" role="alert">
-     <center><b> NABUNG LAH !!!</b> <br> "Seringkali, semakin banyak uang yang Anda hasilkan, semakin banyak pengeluaran Anda. Alasan tersebutlah yang menjadi penyebab uang yang Anda miliki tersebut tidak bisa membuat Anda kaya, namun yang membuat Anda kaya adalah aset." – Robert T. Kiyosaki.</center>
+     <center><b> NABUNG a LAH !!!</b> <br> "Seringkali, semakin banyak uang yang Anda hasilkan, semakin banyak pengeluaran Anda. Alasan tersebutlah yang menjadi penyebab uang yang Anda miliki tersebut tidak bisa membuat Anda kaya, namun yang membuat Anda kaya adalah aset." – Robert T. Kiyosaki.</center>
      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
          <span aria-hidden="true">&times;</span>
      </button>
@@ -54,8 +54,46 @@
      </div><!--/. container-fluid -->
  </section>
  @endsection
+
+ 
  @section('script')
- <script>
-     $("#bayar").addClass("active");
- </script>
- @endsection
+<!-- SCrip Untuk tanda bukti pembayaran -->
+<script>
+    $(document).ready(function() {
+        $('#pembayaran').change(function() {
+            var kel = $('#pembayaran option:selected').val();
+            if (kel == "Transfer") {
+                $("#noId").html('<label for="account-company">Bukti Transfer</label><input type="file" class="form-control col-12" name="foto" id="foto" required /><span class="text-danger" style="font-size: 13px">Harap kirim tanda bukti transferan.</span>');
+            } else {
+                $("#noId").html('');
+            }
+        });
+    });
+</script>
+
+<script>
+    function tombol_kas() {
+        if (document.getElementById("myBtn_kas").hidden = true) {
+            // membuat objek elemen
+            // alert("Nuju di proses...");
+            var hasil = document.getElementById("tombol_proses");
+            hasil.innerHTML = "Nuju di proses ...";
+        }
+    }
+</script>
+
+<script>
+    let jumlah_kas = document.getElementById("jumlah");
+    let button_kas = document.getElementById("myBtn_kas");
+    button_kas.disabled = true;
+    jumlah_kas.addEventListener("change", stateHandle);
+
+    function stateHandle() {
+        if (document.getElementById("jumlah").value <= 49999) {
+            button_kas.disabled = true;
+        } else {
+            button_kas.disabled = false;
+        }
+    }
+</script>
+@endsection

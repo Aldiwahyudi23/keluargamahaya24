@@ -24,14 +24,20 @@
             <!-- /.card-header -->
             <div class="card-body">
                 <ul class="products-list product-list-in-card pl-1 pr-1">
-                    <a href="javascript:void(0)" class="product-title">Saldo ATM</a>
-                    <h5>{{"Rp" . number_format($saldo_bank  + $total_bayar_pinjaman_lebih ,2,',','.')}}</h5>
+                    <a href="javascript:void(0)" class="product-title">Saldo ATM Kas</a>
+                    <h5>{{"Rp" . number_format($saldo_akhir->saldo_atm_kas  + $margin_konter + $diskon_konter_all + $kredit_sum - $jumlah_konter_Ukeluar ,2,',','.')}}</h5>
                     <p>Saldo ATM, saldo anu aya tina tabungan kas keluarga. Jumlah <b>saldo ATM</b> di tambah artos nu masih di <b>bendahara</b> kedah <b>sami</b> sareng jumlah <b>SALDO tiap Laporan</b> </p>
                     <hr />
                 </ul>
                 <ul class="products-list product-list-in-card pl-1 pr-1">
-                    <a href="{{Route('pemasukan.create')}}" class="product-title">Uang dibendahara nu teu acan di TF</a>
-                    <h5>{{"Rp" . number_format( $uang_blum_diTF,2,',','.')}}</h5>
+                    <a href="javascript:void(0)" class="product-title">Saldo ATM Tabungan</a>
+                    <h5>{{"Rp" . number_format($saldo_akhir->saldo_atm_tabungan,2,',','.')}}</h5>
+                    
+                    <hr />
+                </ul>
+                <ul class="products-list product-list-in-card pl-1 pr-1">
+                    <a href="{{Route('setor_tunai')}}" class="product-title">Uang dibendahara nu teu acan di TF</a>
+                    <h5>{{"Rp" . number_format( $saldo_akhir->total_diluar,2,',','.')}}</h5>
                     <p>Artos nu teu acan di setor tunai keun ku bendahara, sareng nu masih di pegang ku bendahara atanapi sekertaris</p>
                     <hr />
                 </ul>
@@ -133,7 +139,19 @@
                         </ul>
                         <ul class="products-list product-list-in-card pl-1 pr-1">
                             <b> <a href="javascript:void(0)" class="product-title">Saldo Kas</a>
-                                <h4>{{"Rp" . number_format(  $saldo_kas + $total_bayar_pinjaman_lebih-($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua) ,2,',','.')}}</h4>
+                                <h4>{{"Rp" . number_format(  $saldo_kas + $total_bayar_pinjaman_lebih + $total_bunga_neo + $total_bunga_tabungan + $kredit_sum - ($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua) ,2,',','.')}}</h4>
+                                <span class="text-success" style="font-size: 10px">Saldo Kas = {{ "Rp " . number_format($saldo_kas -($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua),2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Total Lebih Pinjaman = {{ "Rp " . number_format($total_bayar_pinjaman_lebih,2,',','.') }}. </span><br>
+                                
+                                <span class="text-success" style="font-size: 10px">Bunga Neo Bank = {{ "Rp " . number_format($total_bunga_neo,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Bunga Tabungan = {{ "Rp " . number_format($total_bunga_tabungan,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Keuntungan Konter = {{ "Rp " . number_format($margin_konter,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Keuntungan dari Diskon Konter= {{ "Rp " . number_format($diskon_konter,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Kredit = {{ "Rp " . number_format($kredit_sum,2,',','.') }}. </span>
+                                
+                                
+                                
+                                
                                 <p> Jumlah Total saldo anu aya di bendahara atawa sisa tina pengeluaran termasuk data pinjaman, Plus uang lebihna tina peminjaman. </p>
                                 <hr />
                             </b>
@@ -142,6 +160,17 @@
                         <ul class="products-list product-list-in-card pl-1 pr-1">
                             <a href="javascript:void(0)" class="product-title">Uang nu di pinjem</a>
                             <h5>{{"Rp" . number_format( $total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua ,2,',','.')}}</h5>
+                            <hr />
+                        </ul>
+                        
+                        <ul class="products-list product-list-in-card pl-1 pr-1">
+                            <a href="javascript:void(0)" class="product-title">Tagihan Konter (pulsa,listrik)</a>
+                            <h5>{{"Rp" . number_format( $tagihan_konter ,2,',','.')}}</h5>
+                            <span class="text-success" style="font-size: 10px">Uang yang keluar dari saldo = {{ "Rp " . number_format($jumlah_konter_Ukeluar,2,',','.') }}. </span><br>
+                            <span class="text-success" style="font-size: 10px">Diskon yang ngendap di Saldo (Belum Lunas) = {{ "Rp " . number_format($diskon_konter_BLunas,2,',','.') }}. </span><br>
+                                <span class="text-success" style="font-size: 10px">Keuntungan yang masih di luar (Belum Lunas) = {{ "Rp " . number_format($margin_konter_BLunas,2,',','.') }}. </span>
+                                
+                                
                             <hr />
                         </ul>
 
@@ -199,6 +228,7 @@
                         <ul class="products-list product-list-in-card pl-1 pr-1">
                             <b> <a href="javascript:void(0)" class="product-title">Jumlah sisa Tabungan</a>
                                 <h4>{{"Rp" . number_format($total_tabungan - $total_pengeluaran_tarik_pinjaman,2,',','.')}}</h4>
+                                <span class="text-success" style="font-size: 10px">Bunga Tabungan = {{ "Rp " . number_format($total_bunga_tabungan,2,',','.') }}. </span>
                                 <p> Jumlah sisa tabungan anggota, sisa tina penarikan. </p>
                                 <hr />
                             </b>

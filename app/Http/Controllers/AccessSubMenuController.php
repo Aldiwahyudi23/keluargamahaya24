@@ -46,10 +46,12 @@ class AccessSubMenuController extends Controller
         if ($cek_data_sub_menu->is_active == 1) {
             if ($cek_access->count() < 1) {
                 $data->save();
-                return redirect()->back()->with('sukses', 'Atos ka tambahkeun Akses');
+                   // Kirimkan respons kembali ke JavaScript
+        return response()->json(['status' => 'success']);
             } else {
                 $cek_access->forceDelete();
-                return redirect()->back()->with('infoes', 'Ngahapus akses');
+                   // Kirimkan respons kembali ke JavaScript
+        return response()->json(['status' => 'success']);
             }
         } else {
             return redirect()->back()->with('kuning', 'Sub Menu Teu Aktif teu tiasa di lanjut ');

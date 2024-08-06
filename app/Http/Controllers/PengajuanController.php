@@ -62,6 +62,14 @@ class PengajuanController extends Controller
 
         $tanggal = Carbon::now();
         $data_ketegori = KategoriAnggaranProgram::find($request->kategori_id);
+        
+        // jika pembayaran transfer
+            if ($request->no_req) {
+                $pembayaran = $request->keterangan . "<br>" . "No Req / E-wallet    :" . $request->no_req . "<br>" . "Nama Bank    :" . $request->nama_bank . "<br>" . "Atas Nama    :" . $request->ana ;
+            }
+            if ($request->pengambilan) {
+                $pembayaran = $request->keterangan . "<br>" . "Akan di Ambil secara     :" . $request->pengambilan  ;
+            }
 
         $data_pengajuan = new Pengajuan();
         $data_pengajuan->kode = $data_ketegori->kode . date('dmyhis');
@@ -72,11 +80,19 @@ class PengajuanController extends Controller
         $data_pengajuan->kategori_id = $request->kategori_id;
         $data_pengajuan->tanggal = $tanggal;
         $data_pengajuan->status = "Proses";
-        $data_pengajuan->keterangan = $request->keterangan;
+        
+        if ($request->kategori_id == 5) {
+                $data_pengajuan->keterangan = $pembayaran;
+            } else {
+                $data_pengajuan->keterangan = $request->keterangan;
+            }
 
         if ($request->foto) {
             $data_pengajuan->foto = "/img/bukti/$nama";
         }
+        if ($request->pengeluaran_id) {
+                $data_pengajuan->pengeluaran_id = $request->pengeluaran_id;
+            }
 
         // Untuk notif Wa
         $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
@@ -89,7 +105,6 @@ class PengajuanController extends Controller
         $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
 
-
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
@@ -98,16 +113,19 @@ class PengajuanController extends Controller
         $nominal = number_format($request->jumlah, 2, ',', '.');
         // Untuk link
         if ($DataKategori->nama_kategori == "Kas") {
-            $link = "http://keluargamahaya.online/pengajuans/kas";
+            $link = "http://keluargamahaya.cekmobil.online/pengajuans/kas";
         }
         if ($DataKategori->nama_kategori == "Pinjaman") {
-            $link = "http://keluargamahaya.online/pengajuans/pinjam";
+            $link = "http://keluargamahaya.cekmobil.online/pengajuans/pinjam";
         }
         if ($DataKategori->nama_kategori == "Bayar Pinjaman") {
-            $link = "http://keluargamahaya.online/pengajuans/bayar";
+            $link = "http://keluargamahaya.cekmobil.online/pengajuans/bayar";
         }
         if ($DataKategori->nama_kategori == "Tabungan") {
-            $link = "http://keluargamahaya.online/pengajuans/tarik/tabungan";
+            $link = "http://keluargamahaya.cekmobil.online/pengajuans/tabungan";
+        }
+        if ($DataKategori->nama_kategori == "Tarik Tunai") {
+            $link = "http://keluargamahaya.cekmobil.online/pengajuans/traik/tabungan";
         }
         // =============
         $curl = curl_init();
@@ -185,7 +203,7 @@ Nominal : Rp.$nominal
 STATUS : PROSES
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
             ),
@@ -267,6 +285,12 @@ http://keluargamahaya.online
                 'keterangan.required' => 'Alasan kedah di isi',
             ]
         );
+        
+        if ($request->foto) {
+            $file = $request->file('foto');
+            $nama = 'bukti-' . date('Y-m-dhis') . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('/img/bukti'), $nama);
+        }
 
         $data_pengajuan = Pengajuan::find($id);
         $data_pengajuan->pengaju_id = $request->pengaju_id;
@@ -280,6 +304,10 @@ http://keluargamahaya.online
         if ($request->tanggal == true) {
             $data_pengajuan->tanggal = $request->tanggal;
         }
+        if ($request->foto) {
+            $data_pengajuan->foto = "/img/bukti/$nama";
+        }
+
 
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
@@ -326,7 +354,7 @@ Nominal : Rp.$nominal
 Pami Bendahara sareng Sekertaris atos ngisi laporan, punten pisan langsung kasih keputusan tina laporan ketua sing detail nya, nuhun
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online/pengajuans/pinjam
+http://keluargamahaya.cekmobil.online/pengajuans/pinjam
 ",
 
                 ),
@@ -531,22 +559,22 @@ http://keluargamahaya.online/pengajuans/pinjam
             );
             // Untuk link
             if ($DataKategori->nama_kategori == "Kas") {
-                $link = "http://keluargamahaya.online/pengajuans/kas";
+                $link = "http://keluargamahaya.cekmobil.online/pengajuans/kas";
             }
             if (
                 $DataKategori->nama_kategori == "Pinjaman"
             ) {
-                $link = "http://keluargamahaya.online/pengajuans/pinjam";
+                $link = "http://keluargamahaya.cekmobil.online/pengajuans/pinjam";
             }
             if (
                 $DataKategori->nama_kategori == "Bayar Pinjaman"
             ) {
-                $link = "http://keluargamahaya.online/pengajuans/bayar";
+                $link = "http://keluargamahaya.cekmobil.online/pengajuans/bayar";
             }
             if (
                 $DataKategori->nama_kategori == "Tabungan"
             ) {
-                $link = "http://keluargamahaya.online/pengajuans/tarik/tabungan";
+                $link = "http://keluargamahaya.cekmobil.online/pengajuans/tarik/tabungan";
             }
             // =============
             $curl = curl_init();
@@ -626,7 +654,7 @@ STATUS : PROSES
 Mohon nyuhunkeun kerjasamana ngantosan 1x24 jam soal na terkendala dina kesibukan antar pengurus, antosan informasi salanjutna 
 
 Kas Keluarga Ma HAYA
-http://keluargamahaya.online
+http://keluargamahaya.cekmobil.online
 ",
 
                 ),
@@ -640,11 +668,18 @@ http://keluargamahaya.online
             curl_close($curl);
             echo $response;
             // ============================
-
+            
 
             $data_pengajuan->save();
 
             return redirect()->back()->with('sukses', 'Wihhhhh Alhamdulilahhh pengajuan pinjaman atos ka kirim, nuju di proses heula nya, antosan 1x24 jam, Soal na pengurus na nuju sibuk damel. Hatur Nuhun Pisan');
         }
+    }
+    public function cekPengajuan()
+    {
+        // Lakukan logika untuk memeriksa apakah ada data masuk di pengajuan
+        $adaDataPengajuan = Pengajuan::whereNull('deleted_at')->exists();
+
+        return response()->json(['adaDataPengajuan' => $adaDataPengajuan]);
     }
 }

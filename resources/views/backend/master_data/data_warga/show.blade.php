@@ -73,6 +73,7 @@ $umur = $today->diff($lahir);
                             <?php
 
                             use App\Models\HubunganWarga;
+                            use App\Models\User;
                             ?>
                             @foreach($cek_data_hubungan as $data)
                             <?php
@@ -213,6 +214,8 @@ $umur = $today->diff($lahir);
                     </form>
                 </div>
 
+
+
                 <div class="card card-warning card-outline">
                     <div class="card-header">
                         <h5 class="text-bold card-header bg-light p-2 text-center"> Akun Yang Terkait</h5>
@@ -232,6 +235,37 @@ $umur = $today->diff($lahir);
                             <label for="sider">Tidak Aktif</label>
                             @endif
                         </div>
+                        <div class="container">
+        <div class="left-text" style="float: left;">
+        <a href="{{Route('user.edit',Crypt::encrypt($data_akun->id))}}" class="btn btn-success ">Lihat Account</a>
+        </div>
+        @if ($data_akun->role->nama_role == "Keluarga") 
+        <?php
+$id_hubungan = User::where ('data_warga_id',$data_hubungan->id)->first();
+$cek_user = User::where ('id',$data_akun->id);
+$cek_user_hubungan = User::find($data_akun->user_id);
+?>
+@if ($cek_user->count() == 1 )
+        
+        <div class="right-text" style="float: right;">
+        <form action="{{Route('user.hubungkan_akun')}}" method="POST" enctype="multipart/form-data">
+                                        {{csrf_field()}}
+                                        <input type="hidden" name="id_hub" id="id_hub" value="{{$data_akun->id}}">
+                                        <input type="hidden" name="user_id" id="user_id" value="{{$id_hubungan->id}}">
+                                        @if($cek_user->first()->user_id == False ) <button type="submit" class="btn btn-danger"> Sambungkan</button>
+                                        @else
+                                        <button type="submit" class="btn btn-success"> Putuskan</button>
+                                        @endif
+                                    </form>
+    </div><br>
+    @if($data_akun->user_id <= 1 )
+    @else
+        <div class="right-text" style="float: right;">{{$cek_user_hubungan->name}}</div>
+    @endif
+    @endif
+                            @endif
+                  
+                        
                         @else
                         <label for="">Belum ada akun yang terkait, segera daftarkan jika ingin bisa masuk ke aplikasi</label>
                         @endif

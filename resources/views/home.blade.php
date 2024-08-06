@@ -5,14 +5,33 @@
 
 <?php
     use App\Models\AccessProgram;
+    use App\Models\Konter;
+    
+    
+           $cek_bayar_pinjaman = $saldo_akhir->total_kas + $saldo_akhir->bunga_neo + $saldo_akhir->bunga_tabungan + $saldo_akhir->jumlah_lebih_pinjaman;
+           $bayar_pinjaman = $cek_bayar_pinjaman - $saldo_akhir->saldo_atm_kas;
+           //cek bayar Pinjaman apakah ada lebih dari saldo atam 
+           $cek_total_kas = $saldo_akhir->saldo_kas + $saldo_akhir->saldo_darurat + $saldo_akhir->saldo_amal + $saldo_akhir->saldo_pinjaman + $saldo_akhir->bunga_neo + $saldo_akhir->bunga_tabungan + $saldo_akhir->jumlah_lebih_pinjaman;;
+           //mengambil data bayar pinjaman
+           $kas = ($cek_total_kas - $saldo_akhir->saldo_atm_kas) - $bayar_pinjaman ;
+           //mengambil data Tabungan 
+           $tabungan =$saldo_akhir->total_tabungan - $saldo_akhir->saldo_atm_tabungan;
+           //menghitung Total Kas
+           $total_semua_kas = $saldo_akhir->total_kas + $saldo_akhir->bunga_neo + $saldo_akhir->bunga_tabungan + $saldo_akhir->jumlah_lebih_pinjaman + $kas;
+           //menghitung Saldo Kas Keseluruhan
+           $saldo_semua_kas = $saldo_akhir->saldo_kas + $saldo_akhir->bunga_neo + $saldo_akhir->bunga_tabungan + $saldo_akhir->jumlah_lebih_pinjaman + $kas;
+           
+           $cek_tagihan = Konter::where('user_input',Auth::user()->data_warga->nama)->where('status','Belum Lunas');
+           
     ?>
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
         <!-- Info boxes -->
+        <div class="card">
          <?php $access_program = AccessProgram::where('user_id', Auth::user()->id)->where('program_id', 1); ?>
         @if( $access_program->count() == 1)
-        <div class="card">
+        
             <div class="card-header">
                 <h3 class="card-title">SALDO KAS</h3>
 
@@ -28,12 +47,29 @@
             <!-- /.card-header -->
             <div class="card-footer text-center">
                 <a href="{{route('laporan_umum')}}">
-                    <h3>{{"Rp" . number_format(  $saldo_kas + $total_bayar_pinjaman_lebih-($total_pengeluaran_pinjaman - $total_bayar_pinjaman_semua) ,2,',','.')}}</h3>
+                    <h3>{{"Rp" . number_format($total_semua_kas,2,',','.')}}</h3>
                 </a>
             </div>
             <!-- /.card-footer -->
-        </div>
+        
+        
         @endif
+        @if($cek_tagihan->count() > 0)
+        <a href="#tagihan" class="btn btn-info" data-toggle="collapse">Tagihan <br> {{ "Rp " . number_format($cek_tagihan->sum('tagihan'),2,',','.') }}</a>
+            <div id="tagihan" class="collapse">
+            
+            @foreach($cek_tagihan->get() as $data)
+            <a href="{{route('konter-lihat',Crypt::encrypt($data->id))}}" class="">
+            <div class="container">
+            
+        <div class="left-text" style="float: left;">{{$data->layanan}}</div>
+        <div class="right-text" style="float: right;">{{ "Rp " . number_format($data->tagihan,2,',','.') }}</div>
+    </div> </a><br>
+    
+            @endforeach
+            </div>
+        @endif
+        </div>
         <!-- Halaman untuk menu -->
         <div class="row">
             <div class="col-md-12">

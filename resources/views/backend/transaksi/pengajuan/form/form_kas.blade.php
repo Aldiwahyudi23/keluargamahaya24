@@ -35,39 +35,24 @@ $sisa_kas = $all_kas_kerja - $cek_pemasukan_terakhir_all;
 $sisa_bulan = $sisa_kas / $program->jumlah;
 
 $user = DataWarga::find(Auth::user()->data_warga_id);
-if ($user->jenis_kelamin = "Laki-Laki") {
-    $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Istri');
-    if ($cek_hubungan->count() == 1) {
-        $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-        $data_user = $cek_user->data_warga_id;
-        //untuk mengecek status pekerjaan
-        $data_warga = DataWarga::find($data_user);
-        if ($data_warga->status = "Tidak Bekerja") {
-            $status_pekerjaan = $user->status;
-        } else {
-            $status_pekerjaan = $data_warga->status;
-        }
-    } else {
+
+if ($user->status_pernikahan == "Menikah"){
+    $cek_user = User::find(Auth::user()->user_id);
+   if(Auth::user()->user_id == false) {
         $data_user = Auth::user()->data_warga_id;
         $status_pekerjaan = $user->status;
-    }
-} else {
-    $cek_hubungan = HubunganWarga::where('warga_id', $user->id)->where('hubungan', 'Suami');
-    if ($cek_hubungan->count() == 1) {
-        $cek_user = User::where('data_warga_id', $cek_hubungan->first()->data_warga_id)->first();
-        $data_user = $cek_user->data_warga_id;
-        //untuk mengecek status pekerjaan
-        $data_warga = DataWarga::find($data_user);
-        if ($data_warga->status = "Tidak Bekerja") {
-            $status_pekerjaan = $user->status;
-        } else {
-            $status_pekerjaan = $data_warga->status;
-        }
+        
     } else {
-        $data_user = Auth::user()->data_warga_id;
-        $status_pekerjaan = $user->status;
+         $data_user = $cek_user->data_warga_id;
+         $status_pekerjaan = $user->status;
+         
+         
     }
+}else{
+    $data_user = Auth::user()->data_warga_id;
+    $status_pekerjaan = $user->status;
 }
+
 ?>
 @if ($cek_pemasukan_terakhir_total == 0)
 <center>

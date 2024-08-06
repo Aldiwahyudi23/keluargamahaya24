@@ -14,7 +14,7 @@
                 <li class="list-group-item">
                     <b>Program </b> <a href="{{route('detail.anggota.kas',Crypt::encrypt($user->id))}}" class="float-right"></a>
                 </li>
-                @if (Auth::user()->role == "Admin" || Auth::user()->role == "Bendahara" || Auth::user()->role == "Sekertaris")
+                @if (Auth::user()->role->nama_role == "Admin" || Auth::user()->role->nama_role == "Bendahara" || Auth::user()->role->nama_role == "Sekertaris")
                 <li class="list-group-item">
                     <b></b> <a href="{{route('detail.anggota.tabungan',Crypt::encrypt($user->id))}}" class="float-right"></a>
                 </li>

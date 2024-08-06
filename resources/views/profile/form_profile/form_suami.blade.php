@@ -68,6 +68,22 @@ $cek_user = User::where('data_warga_id', $suami->id);
                         <li class="list-group-item">
                             <b>No HP</b> <a class="float-right">{{ $suami->no_hp }}</a>
                         </li>
+                                     @if (Auth::user()->role_id <= 6 ) @if ($cek_user->count() == 1 )
+                            <li class="list-group-item">
+                                <b>Hubungkan Akun</b> <a class="float-right">
+                                    <form action="{{Route('user.hubungkan_akun')}}" method="POST" enctype="multipart/form-data">
+                                        {{csrf_field()}}
+                                        <input type="hidden" name="id_hub" id="id_hub" value="{{$cek_user->first()->id}}">
+                                        <input type="hidden" name="user_id" id="user_id" value="{{Auth::user()->id}}">
+                                        @if($cek_user->first()->user_id == False ) <button type="submit" class="btn btn-danger"> Tidak Tersambung</button>
+                                        @else
+                                        <button type="submit" class="btn btn-success"> Tersambung</button>
+                                        @endif
+                                    </form>
+                                </a>
+                            </li>
+                            @endif
+                            @endif
                     </ul>
                     <table id="example1" class="table table-bordered table-striped">
                         <tbody>

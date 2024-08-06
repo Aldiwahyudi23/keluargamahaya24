@@ -46,11 +46,15 @@
                         <table id="example1" class="table table-bordered table-striped table-hover">
                             <tbody>
                                 <tr>
+                                    <td width="150px">ID Transaksi</td>
+                                    <td width="10px">:</td>
+                                    <td>{{ $data_pengajuan->kode }}</td>
+                                </tr>
+                                <tr>
                                     <td width="150px">Pengajuan</td>
                                     <td width="10px">:</td>
                                     <td>{{ $data_pengajuan->kategori->nama_kategori }}</td>
                                 </tr>
-                                <tr>
                                 <tr>
                                     <td>Nama Anggoota</td>
                                     <td>:</td>
