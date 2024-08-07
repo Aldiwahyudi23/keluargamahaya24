@@ -157,7 +157,7 @@ Route::get('/pengajuans/user/{id}', [PengajuanController::class, 'pengajuan_user
 
 // routes/web.php
 
-Route::get('/cek-pengajuan', [PengajuanController::class,'cekPengajuan']);
+Route::get('/cek-pengajuan', [PengajuanController::class, 'cekPengajuan']);
 
 
 
@@ -236,14 +236,14 @@ Route::get('/percobaan', [PesanController::class, 'percobaan'])->name('percobaan
 Route::post('/percobaan/store', [PesanController::class, 'percobaan_store'])->middleware(['auth', 'verified'])->name('percobaan.store');
 
 Route::resource('konter', KonterController::class)->middleware(['auth', 'verified']);
-Route::get('konter/home/tagihan', [KonterController::class,'konter_home'])->middleware(['auth', 'verified'])->name('konter-home-tagihan');
-Route::get('konter/home/lihat/{id}', [KonterController::class,'lihat'])->middleware(['auth', 'verified'])->name('konter-lihat');
-Route::get('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class,'konfirmasi_pembayaran_lihat'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran_lihat');
-Route::post('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class,'konfirmasi_pembayaran'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran');
-Route::post('konter/home/konfirmasi-transaksi/{id}', [KonterController::class,'konfirmasi_transaksi'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_transaksi');
-Route::get('konter/home/pulsa', [KonterController::class,'konter_cek_pulsa'])->name('transactions.cek_pulsa');
-Route::get('konter/home/tagihan-listrik', [KonterController::class,'konter_cek_tagihan_listrik'])->name('transactions.cek_tagihan_listrik');
-Route::get('konter/home/token-listrik', [KonterController::class,'konter_cek_token_listrik'])->name('transactions.cek_token_listrik');
+Route::get('konter/home/tagihan', [KonterController::class, 'konter_home'])->middleware(['auth', 'verified'])->name('konter-home-tagihan');
+Route::get('konter/home/lihat/{id}', [KonterController::class, 'lihat'])->middleware(['auth', 'verified'])->name('konter-lihat');
+Route::get('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class, 'konfirmasi_pembayaran_lihat'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran_lihat');
+Route::post('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class, 'konfirmasi_pembayaran'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran');
+Route::post('konter/home/konfirmasi-transaksi/{id}', [KonterController::class, 'konfirmasi_transaksi'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_transaksi');
+Route::get('konter/home/pulsa', [KonterController::class, 'konter_cek_pulsa'])->name('transactions.cek_pulsa');
+Route::get('konter/home/tagihan-listrik', [KonterController::class, 'konter_cek_tagihan_listrik'])->name('transactions.cek_tagihan_listrik');
+Route::get('konter/home/token-listrik', [KonterController::class, 'konter_cek_token_listrik'])->name('transactions.cek_token_listrik');
 
 Route::get('/transactions/createe', [KonterController::class, 'creato'])->name('transactions.create');
 Route::get('/transactions/getServices', [KonterController::class, 'getServices'])->name('get.services');
@@ -251,10 +251,10 @@ Route::get('/transactions/getPrices', [KonterController::class, 'getPrices'])->n
 Route::get('/transactions/getPriceDetails', [KonterController::class, 'getPriceDetails'])->name('get.price.details');
 Route::post('/transactions', [KonterController::class, 'store_umum'])->name('transactions.store');
 Route::post('/transactions/pengajuan', [KonterController::class, 'pengajuan_umum'])->name('transactions.pengajuan');
-Route::get('/check-phone', [KonterController::class,'checkPhone'])->name('check.phone');
-Route::get('/get-harga-jual', [KonterController::class,'getHargaJual'])->name('get.harga.jual');
+Route::get('/check-phone', [KonterController::class, 'checkPhone'])->name('check.phone');
+Route::get('/get-harga-jual', [KonterController::class, 'getHargaJual'])->name('get.harga.jual');
 
-Route::get('/check-id-listrik',  [KonterController::class,'checkIdListrik'])->name('check.id_listrik');
+Route::get('/check-id-listrik',  [KonterController::class, 'checkIdListrik'])->name('check.id_listrik');
 // routes/web.php
 Route::get('/check-id-listrik-status', [KonterController::class, 'checkIdListrikStatus'])->name('check.id_listrik_status');
 
