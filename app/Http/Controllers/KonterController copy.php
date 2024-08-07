@@ -802,7 +802,71 @@ Kel. Ma Haya
         }
 
         // Untuk notif Wa
+        $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+        $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+        $role_bendahara = Role::where('nama_role', 'Bendahara')->first(); //Untuk mengambil data sesuai nama role
+        $bendahara = User::where('role_id', $role_bendahara->id)->first(); // mengambil satu data sesuai dengan role
+        $role_sekertaris = Role::where('nama_role', 'Sekertaris')->first(); //Untuk mengambil data sesuai nama role
+        $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
+        $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
+        $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
+
+        $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
+
+        $token = "@Mx6RkRVz60S#j8YGi6T";
+        $target = "$bendahara->data_warga->no_hp, $sekertaris->data_warga->no_hp, $penasehat->data_warga->no_hp";
+        $nominal = number_format($request->nominal_input, 2, ',', '.');
+        $tagihan = number_format($request->harga_jual, 2, ',', '.');
+        // =============
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $target,
+                'message' => "
+Aya Pengajuan anu masuk, Sok gra cek konfirmasi leres teu meh mantulll. Grecepkeun ahhh yuuukkk cek meh jongjon. Data na nu di handap
+
+Kategori : *$request->kategori ,$request->layanan*
+Nominal: *$nominal*
+No Listrik : *$listrik*
+No Handphone: *$request->no_hp*
+Yang mengajukan  : $nama
+Pembayaran : $request->payment_method
+Durasi Pembayaran (Hari) : $request->durasi 
+sampai tanggal : $newDate
+Tagihan : $tagihan
+
+BURU PROSES, meh teu di tungguan, Gassskeunnnnn ...
+
+*Catatan!!!*
+1. Pami aya WA pengajuan Ieu langsung kirim na group pengurus meh langsung di proses.
+2. Pami bade di proses ku salah sahiji info di Group kasih keterangan ( On Proses).
+3. Transaksi di lakukeun ku 2 akun, Akun Neo Angga sareng Aldi, supaya cepet prosesnya.
+
+Kas Keluarga Ma HAYA
+
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
         // sampe die
 
         $data_konter->save();

@@ -95,10 +95,127 @@ class PengajuanController extends Controller
         }
 
         // Untuk notif Wa
+        $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+        $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+        $role_bendahara = Role::where('nama_role', 'Bendahara')->first(); //Untuk mengambil data sesuai nama role
+        $bendahara = User::where('role_id', $role_bendahara->id)->first(); // mengambil satu data sesuai dengan role
+        $role_sekertaris = Role::where('nama_role', 'Sekertaris')->first(); //Untuk mengambil data sesuai nama role
+        $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
+        $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
+        $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
+
+        $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
+        $token = "@Mx6RkRVz60S#j8YGi6T";
+        $target = "$bendahara->data_warga->no_hp, $sekertaris->data_warga->no_hp";
+        $nominal = number_format($request->jumlah, 2, ',', '.');
+        // Untuk link
+        if ($DataKategori->nama_kategori == "Kas") {
+            $link = "https://keluargamahaya.com/pengajuans/kas";
+        }
+        if ($DataKategori->nama_kategori == "Pinjaman") {
+            $link = "https://keluargamahaya.com/pengajuans/pinjam";
+        }
+        if ($DataKategori->nama_kategori == "Bayar Pinjaman") {
+            $link = "https://keluargamahaya.com/pengajuans/bayar";
+        }
+        if ($DataKategori->nama_kategori == "Tabungan") {
+            $link = "https://keluargamahaya.com/pengajuans/tabungan";
+        }
+        if ($DataKategori->nama_kategori == "Tarik Tunai") {
+            $link = "https://keluargamahaya.com/pengajuans/traik/tabungan";
+        }
+        // =============
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $target,
+                'message' => "Assalamualaikum palawargi
+
+               Pesan Otomatis       
+
+Info ti pusattt
+Aya Pengajuan anu masuk, Sok gra cek konfirmasi leres teu meh mantulll. Grecepkeun ahhh yuuukkk cek meh jongjon. Data na nu di handap
+
+ID : $data_pengajuan->kode
+Tanggal : $tanggal
+Kategori : $DataKategori->nama_kategori
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
+Nominal : Rp.$nominal
+
+BURU PROSES KONFIRMASI, meh teu di tungguan, Gassskeunnnnn ...
+
+Kas Keluarga Ma HAYA
+$link
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
         // sampe die
         // jang pengurus
+        $curl = curl_init();
 
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $DataWarga->no_hp,
+                'message' => "Assalamualaikum palawargi
+
+                Pesan Otomatis       
+
+Info ti pusattt
+Pengajuan atos masuk data kantun ngantosan di konfirmasi ku pengurus
+
+ID : $data_pengajuan->kode
+Tanggal : $tanggal
+Kategori : $DataKategori->nama_kategori
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
+Nominal : Rp.$nominal
+
+STATUS : PROSES
+
+Kas Keluarga Ma HAYA
+https://keluargamahaya.com
+",
+
+            ),
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: $token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
         // ============================
 
 
@@ -191,6 +308,67 @@ class PengajuanController extends Controller
             $data_pengajuan->foto = "/img/bukti/$nama";
         }
 
+
+        $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+        $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
+        if ($DataKategori->nama_kategori == "Pinjaman") {
+
+            $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
+            $nama_pelapor = Auth::user()->data_warga->nama;
+            $jabatan_pelapor = Auth::user()->role->nama_role;
+            $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+            $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+            $no_ketua = $ketua->data_warga->no_hp;
+            $nama_ketua = $ketua->data_warga->nama;
+            $token = "@Mx6RkRVz60S#j8YGi6T";
+            $nominal = number_format($request->jumlah, 2, ',', '.');
+
+            // =============
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.fonnte.com/send',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'target' => $no_ketua,
+                    'message' => "Assalamualaikum $nama_ketua
+
+                        Pesan Otomatis       
+
+Info ti pusatt $jabatan_pelapor
+Aya Pengajuan Pinjaman nu kedah di cek sareng di setujui, nembe $nama_pelapor atos bikin laporan, mangga cek heula. datana nu di handap
+
+ID : $data_pengajuan->kode
+Tanggal : $request->tanggal;
+Kategori : $DataKategori->nama_kategori
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
+Nominal : Rp.$nominal
+
+Pami Bendahara sareng Sekertaris atos ngisi laporan, punten pisan langsung kasih keputusan tina laporan ketua sing detail nya, nuhun
+
+Kas Keluarga Ma HAYA
+https://keluargamahaya.com/pengajuans/pinjam
+",
+
+                ),
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: $token"
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+            // sampe die
+        }
 
         $data_pengajuan->update();
         return redirect()->back()->with('infoes', ' Data Pengajuan atos di ganti, cek data lagi');
@@ -357,10 +535,138 @@ class PengajuanController extends Controller
             }
 
             // Untuk notif Wa
+            $role_ketua = Role::where('nama_role', 'Ketua')->first(); //Untuk mengambil data sesuai nama role
+            $ketua = User::where('role_id', $role_ketua->id)->first(); // mengambil satu data sesuai dengan role
+            $role_bendahara = Role::where('nama_role', 'Bendahara')->first(); //Untuk mengambil data sesuai nama role
+            $bendahara = User::where('role_id', $role_bendahara->id)->first(); // mengambil satu data sesuai dengan role
+            $role_sekertaris = Role::where('nama_role', 'Sekertaris')->first(); //Untuk mengambil data sesuai nama role
+            $sekertaris = User::where('role_id', $role_sekertaris->id)->first(); // mengambil satu data sesuai dengan role
+            $role_penasehat = Role::where('nama_role', 'Penasehat')->first(); //Untuk mengambil data sesuai nama role
+            $penasehat = User::where('role_id', $role_penasehat->id)->first(); // mengambil satu data sesuai dengan role
 
+
+
+            $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
+            $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
+            $DataKategori = KategoriAnggaranProgram::find($request->kategori_id); //untuk mengambil data kategori
+            $token = "@Mx6RkRVz60S#j8YGi6T";
+            $target = "$bendahara->data_warga->no_hp, $sekertaris->data_warga->no_hp";
+            $nominal = number_format(
+                $request->jumlah,
+                2,
+                ',',
+                '.'
+            );
+            // Untuk link
+            if ($DataKategori->nama_kategori == "Kas") {
+                $link = "https://keluargamahaya.com/pengajuans/kas";
+            }
+            if (
+                $DataKategori->nama_kategori == "Pinjaman"
+            ) {
+                $link = "https://keluargamahaya.com/pengajuans/pinjam";
+            }
+            if (
+                $DataKategori->nama_kategori == "Bayar Pinjaman"
+            ) {
+                $link = "https://keluargamahaya.com/pengajuans/bayar";
+            }
+            if (
+                $DataKategori->nama_kategori == "Tabungan"
+            ) {
+                $link = "https://keluargamahaya.com/pengajuans/tarik/tabungan";
+            }
+            // =============
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.fonnte.com/send',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'target' => $target,
+                    'message' => "Assalamualaikum palawargi
+
+               Pesan Otomatis       
+
+Info ti pusattt
+Aya Pengajuan anu masuk, Sok gra cek konfirmasi leres teu meh mantulll. Grecepkeun ahhh yuuukkk cek meh jongjon. Data na nu di handap
+
+ID : $data_pengajuan->kode
+Tanggal : $tanggal
+Kategori : $DataKategori->nama_kategori
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
+Nominal : Rp.$nominal
+
+BURU PROSES KONFIRMASI, meh teu di tungguan, Gassskeunnnnn ...
+
+Kas Keluarga Ma HAYA
+$link
+",
+
+                ),
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: $token"
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
             // sampe die
             // jang pengurus
+            $curl = curl_init();
 
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.fonnte.com/send',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'target' => $DataWarga->no_hp,
+                    'message' => "Assalamualaikum palawargi
+
+                Pesan Otomatis       
+
+Info ti pusattt
+Pengajuan Pinjaman atos masuk data kantun ngantosan di konfirmasi ku pengurus. 
+
+ID : $data_pengajuan->kode
+Tanggal : $tanggal
+Kategori : $DataKategori->nama_kategori
+Atas Nama : $DataWarga->nama
+Yang mengajukan  : $DataPengaju->nama
+Nominal : Rp.$nominal
+
+STATUS : PROSES
+
+Mohon nyuhunkeun kerjasamana ngantosan 1x24 jam soal na terkendala dina kesibukan antar pengurus, antosan informasi salanjutna 
+
+Kas Keluarga Ma HAYA
+https://keluargamahaya.com
+",
+
+                ),
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: $token"
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
             // ============================
 
 
