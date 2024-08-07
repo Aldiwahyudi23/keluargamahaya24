@@ -9,6 +9,7 @@ use App\Http\Controllers\AsetController;
 use App\Http\Controllers\BantuanController;
 use App\Http\Controllers\BayarPinjamanController;
 use App\Http\Controllers\DataWargaController;
+use App\Http\Controllers\FileLaporanController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HubunganWargaController;
 use App\Http\Controllers\KategoriAnggaranProgramController;
@@ -29,6 +30,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SubMenuController;
 use App\Http\Controllers\TabunganController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\KonterController;
+use App\Http\Controllers\KeturunanController;
 use App\Models\Access_Pemasukan;
 use App\Models\AccessProgram;
 use App\Models\DataWarga;
@@ -36,6 +39,10 @@ use App\Models\Layout_Pemasukan;
 use App\Models\LayoutAppUser;
 use App\Models\LayoutPengeluaran;
 use Illuminate\Support\Facades\Route;
+
+// web.php
+use App\Http\Controllers\KekerabatanController;
+use App\Http\Controllers\FonnteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +54,19 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+
+
+use App\Http\Controllers\KreditController;
+
+Route::get('/invoice', [KreditController::class, 'showInvoice'])->name('invoice');
+Route::post('/check-discount', [KreditController::class, 'checkDiscount'])->name('checkDiscount');
+
+Route::resource('/credit', KreditController::class);
+Route::get('/kredit/cek-harga', [KreditController::class, 'showForm'])->name('cek-kredit');
+
+
+Route::post('/fonnte/webhook', [FonnteController::class, 'handleRequest']);
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth'])->name('home');
 Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth'])->name('dashboard');
@@ -118,6 +138,7 @@ Route::post('/pengaturan/ubah-password', [ProfileController::class, 'ubah_passwo
 Route::resource('data-hubungan-warga', HubunganWargaController::class)->middleware(['auth', 'verified']);
 
 Route::resource('data-user', UserController::class)->middleware(['auth', 'verified']);
+Route::post('data-user/hubungkan', [UserController::class, 'hubungkan_akun'])->middleware(['auth', 'verified'])->name('user.hubungkan_akun');
 
 Route::resource('pengajuan', PengajuanController::class)->middleware(['auth', 'verified']);
 Route::get('/pengajuans/trash/', [PengajuanController::class, 'trash'])->middleware(['auth', 'verified'])->name('pengajuan.trash');
@@ -134,6 +155,11 @@ Route::get('/pengajuans/laporan/{id}', [PengajuanController::class, 'laporan_pin
 Route::post('/pengajuans/laporan/{id}', [PengajuanController::class, 'kirim_laporan_pinjaman'])->middleware(['auth', 'verified'])->name('kirim_pengajuan.laporan');
 Route::get('/pengajuans/user/{id}', [PengajuanController::class, 'pengajuan_user'])->middleware(['auth', 'verified'])->name('pengajuan.user');
 
+// routes/web.php
+
+Route::get('/cek-pengajuan', [PengajuanController::class, 'cekPengajuan']);
+
+
 
 Route::resource('pemasukan', PemasukanController::class)->middleware(['auth', 'verified']);
 Route::get('/pemasukans/trash/', [PemasukanController::class, 'trash'])->middleware(['auth', 'verified'])->name('pemasukan.trash');
@@ -142,6 +168,8 @@ Route::get('/pemasukans/restore/{id}', [PemasukanController::class, 'restore'])-
 Route::get('/pemasukans/bayar', [PemasukanController::class, 'pemasukan_index'])->middleware(['auth', 'verified'])->name('pemasukan-index');
 Route::get('/pemasukans/detail/kas/{id}', [PemasukanController::class, 'detail_anggota_kas'])->middleware(['auth', 'verified'])->name('detail.anggota.kas');
 Route::get('/pemasukans/detail/tabungan/{id}', [PemasukanController::class, 'detail_anggota_tabungan'])->middleware(['auth', 'verified'])->name('detail.anggota.tabungan');
+Route::get('/pemasukans/setor-tunai', [PemasukanController::class, 'index_setor_tunai'])->middleware(['auth', 'verified'])->name('setor_tunai');
+
 
 Route::resource('user', UserController::class)->middleware(['auth', 'verified']);
 Route::resource('layout-halaman-pemasukan', LayoutPemasukanController::class)->middleware(['auth', 'verified']);
@@ -202,5 +230,49 @@ Route::get('/asets/restore/{id}', [AsetController::class, 'restore'])->middlewar
 
 Route::get('/pesan', [PesanController::class, 'index'])->middleware(['auth', 'verified'])->name('pesan');
 Route::post('/pesan/kirim/', [PesanController::class, 'kirim_pesan'])->middleware(['auth', 'verified'])->name('pesan.kirim');
+Route::get('/pesan/kirim/bulanan', [PesanController::class, 'kirim_pengumuman_perbulan'])->middleware(['auth', 'verified'])->name('pesan.perbulan');
+
+Route::get('/percobaan', [PesanController::class, 'percobaan'])->name('percobaan');
+Route::post('/percobaan/store', [PesanController::class, 'percobaan_store'])->middleware(['auth', 'verified'])->name('percobaan.store');
+
+Route::resource('konter', KonterController::class)->middleware(['auth', 'verified']);
+Route::get('konter/home/tagihan', [KonterController::class, 'konter_home'])->middleware(['auth', 'verified'])->name('konter-home-tagihan');
+Route::get('konter/home/lihat/{id}', [KonterController::class, 'lihat'])->middleware(['auth', 'verified'])->name('konter-lihat');
+Route::get('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class, 'konfirmasi_pembayaran_lihat'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran_lihat');
+Route::post('konter/home/konfirmasi-pembayaran/{id}', [KonterController::class, 'konfirmasi_pembayaran'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_pembayaran');
+Route::post('konter/home/konfirmasi-transaksi/{id}', [KonterController::class, 'konfirmasi_transaksi'])->middleware(['auth', 'verified'])->name('konter-konfirmasi_transaksi');
+Route::get('konter/home/pulsa', [KonterController::class, 'konter_cek_pulsa'])->name('transactions.cek_pulsa');
+Route::get('konter/home/tagihan-listrik', [KonterController::class, 'konter_cek_tagihan_listrik'])->name('transactions.cek_tagihan_listrik');
+Route::get('konter/home/token-listrik', [KonterController::class, 'konter_cek_token_listrik'])->name('transactions.cek_token_listrik');
+
+Route::get('/transactions/createe', [KonterController::class, 'creato'])->name('transactions.create');
+Route::get('/transactions/getServices', [KonterController::class, 'getServices'])->name('get.services');
+Route::get('/transactions/getPrices', [KonterController::class, 'getPrices'])->name('get.prices');
+Route::get('/transactions/getPriceDetails', [KonterController::class, 'getPriceDetails'])->name('get.price.details');
+Route::post('/transactions', [KonterController::class, 'store_umum'])->name('transactions.store');
+Route::post('/transactions/pengajuan', [KonterController::class, 'pengajuan_umum'])->name('transactions.pengajuan');
+Route::get('/check-phone', [KonterController::class, 'checkPhone'])->name('check.phone');
+Route::get('/get-harga-jual', [KonterController::class, 'getHargaJual'])->name('get.harga.jual');
+
+Route::get('/check-id-listrik',  [KonterController::class, 'checkIdListrik'])->name('check.id_listrik');
+// routes/web.php
+Route::get('/check-id-listrik-status', [KonterController::class, 'checkIdListrikStatus'])->name('check.id_listrik_status');
+
+
+// routes/web.php
+
+Route::get('/keturunan', [KeturunanController::class, 'index'])->name('keturunan.index');
+Route::post('/keturunan/cari', [KeturunanController::class, 'cariKeturunan'])->name('keturunan.cari');
+
+
+
+Route::post('/transaksi/preview', [KonterController::class, 'preview'])->name('transactions.preview');
+Route::post('/transaksi/submit', [KonterController::class, 'submit'])->name('transactions.submit');
+
+
+
+//File Laporan
+Route::resource('file-laporan', FileLaporanController::class)->middleware(['auth', 'verified']);
+Route::get('dowload/{$nama}', [FileLaporanController::class, 'downloadFile'])->middleware(['auth', 'verified'])->name('download-file');
 
 require __DIR__ . '/auth.php';
