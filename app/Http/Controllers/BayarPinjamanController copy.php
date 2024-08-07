@@ -149,7 +149,7 @@ class BayarPinjamanController extends Controller
         $DataPengaju = DataWarga::find($request->pengaju_id); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $DataWarga = DataWarga::find($request->data_warga); //Untuk mengambil data Warga sesuai dengtan id pengaju
         $token = "@Mx6RkRVz60S#j8YGi6T";
-        $target = "$DataWarga";
+        $target = "$ketua->data_warga->no_hp,$DataWarga";
         $nominal = number_format($request->jumlah, 2, ',', '.');
         $pengurus = User::Find(auth::user()->id);
         $pengurus_acc = $pengurus->data_warga->nama;
